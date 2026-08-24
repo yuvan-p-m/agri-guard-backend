@@ -10,6 +10,7 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'app'))
 
 # Test logging setup
+# pyrefly: ignore [missing-import]
 from core.logger import setup_logging, get_logger
 
 print("=" * 60)

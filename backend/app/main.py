@@ -35,20 +35,31 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Register API routes
-app.include_router(auth.router)
-app.include_router(disease.router)
-app.include_router(crop.router)
-app.include_router(sensors.router)
-app.include_router(weather.router)
-app.include_router(risk.router)
-app.include_router(feedback.router)
-app.include_router(pesticides.router)
-app.include_router(ecommerce.router)
-app.include_router(alerts.router)
-app.include_router(history.router)
+# Register API routes across root, /api/v1, and /api prefixes
+api_routers = [
+    auth.router,
+    auth.root_router,
+    disease.router,
+    crop.router,
+    sensors.router,
+    weather.router,
+    risk.router,
+    feedback.router,
+    pesticides.router,
+    ecommerce.router,
+    alerts.router,
+    history.router
+]
+
+for r in api_routers:
+    app.include_router(r)
+    app.include_router(r, prefix="/api/v1")
+    app.include_router(r, prefix="/api")
+
 
 @app.get("/health")
+@app.get("/api/v1/health")
+@app.get("/api/health")
 def health_check():
     """Health check endpoint"""
     return {"status": "ok", "message": "API is running", "version": "1.0.0"}
