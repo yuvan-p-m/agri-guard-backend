@@ -11,10 +11,10 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from core.logger import setup_logging
 from core.config import settings
-from db.session import init_db
+from core.firebase import init_firebase, is_firebase_initialized
 
 # Import API routes
-from api import auth, disease, crop, sensors, weather, risk, feedback, pesticides, ecommerce, alerts, history
+from api import auth, disease, crop, sensors, weather, risk, feedback, pesticides, ecommerce, history
 
 load_dotenv()
 setup_logging()
@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title="SIH Agri-Smart API",
-    description="AI-powered crop disease detection & recommendation system",
+    description="AI-powered crop disease detection & recommendation system with Firebase Integration",
     version="1.0.0"
 )
 
@@ -47,7 +47,6 @@ api_routers = [
     feedback.router,
     pesticides.router,
     ecommerce.router,
-    alerts.router,
     history.router
 ]
 
@@ -62,7 +61,12 @@ for r in api_routers:
 @app.get("/api/health")
 def health_check():
     """Health check endpoint"""
-    return {"status": "ok", "message": "API is running", "version": "1.0.0"}
+    return {
+        "status": "ok",
+        "message": "API is running",
+        "version": "1.0.0",
+        "firebase_active": is_firebase_initialized()
+    }
 
 @app.get("/")
 def root():
@@ -72,6 +76,7 @@ def root():
         "version": "1.0.0",
         "description": "AI-powered crop disease detection & recommendation system",
         "docs": "/docs",
+        "firebase_active": is_firebase_initialized(),
         "endpoints": {
             "auth": "/auth",
             "disease": "/disease",
@@ -90,8 +95,11 @@ def root():
 @app.on_event("startup")
 async def startup():
     logger.info("SIH Agri-Smart API starting...")
-    init_db()
-    logger.info("Database initialized")
+    init_firebase()
+    if is_firebase_initialized():
+        logger.info("Firebase Admin initialized successfully.")
+    else:
+        logger.info("Firebase Admin running with mock DB fallback.")
 
 @app.on_event("shutdown")
 async def shutdown():

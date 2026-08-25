@@ -35,6 +35,12 @@ wheels/
 .env
 .env.local
 .env.*.local
+serviceAccountKey.json
+*.json
+!package.json
+!tsconfig.json
+!capacitor.config.json
+
 
 # Logs
 backend/app/logs/*.log

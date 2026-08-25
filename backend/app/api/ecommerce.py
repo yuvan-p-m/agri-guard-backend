@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
 
 from core.security import get_current_user
 from core.logger import get_logger
@@ -59,7 +58,6 @@ async def get_product_links(
     current_user: dict = Depends(get_current_user)
 ):
     """Get e-commerce links for a product"""
-    
     if product_name not in EcommerceService.PRODUCT_LINKS:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -67,7 +65,6 @@ async def get_product_links(
         )
     
     products = EcommerceService.PRODUCT_LINKS[product_name]
-    
     logger.info(f"E-commerce links fetched for: {product_name}")
     
     return {
@@ -85,10 +82,9 @@ async def get_pesticide_products(
     current_user: dict = Depends(get_current_user)
 ):
     """Get all available pesticide products"""
-    
     pesticides = {}
     for product, data in EcommerceService.PRODUCT_LINKS.items():
-        if product not in ["NPK Fertilizer", "Organic Neem Oil"]:  # Filter only pesticides
+        if product not in ["NPK Fertilizer", "Organic Neem Oil"]:
             pesticides[product] = {
                 "online_links": {
                     "amazon": data["amazon"],
@@ -108,10 +104,9 @@ async def get_fertilizer_products(
     current_user: dict = Depends(get_current_user)
 ):
     """Get all available fertilizer products"""
-    
     fertilizers = {}
     for product, data in EcommerceService.PRODUCT_LINKS.items():
-        if product in ["NPK Fertilizer", "Organic Neem Oil"]:  # Filter fertilizers
+        if product in ["NPK Fertilizer", "Organic Neem Oil"]:
             fertilizers[product] = {
                 "online_links": {
                     "amazon": data["amazon"],
@@ -133,14 +128,12 @@ async def add_to_cart(
     current_user: dict = Depends(get_current_user)
 ):
     """Simulate adding product to cart (redirect to actual e-commerce)"""
-    
     if product_name not in EcommerceService.PRODUCT_LINKS:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Product not found"
         )
     
-    # In real implementation, this would redirect to e-commerce with deep link
     products = EcommerceService.PRODUCT_LINKS[product_name]
     redirect_url = products.get(platform.lower(), products["amazon"])
     

@@ -1,7 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
 
-from db.session import get_db
 from core.security import get_current_user
 from core.logger import get_logger
 
@@ -61,21 +59,14 @@ class PesticicdeAdvisor:
     
     @staticmethod
     def get_dosage(disease: str, pesticide_name: str, farm_size_acres: float, crop: str) -> dict:
-        """Calculate pesticide dosage"""
-        
         if pesticide_name not in PesticicdeAdvisor.PESTICIDE_DATABASE:
             return None
         
         pest_data = PesticicdeAdvisor.PESTICIDE_DATABASE[pesticide_name]
-        
-        # Convert acres to liters (1 acre ≈ 500-600 liters spray)
         total_liters = farm_size_acres * 550
-        
-        # Calculate total quantity needed
         qty_per_liter = pest_data["quantity_per_liter"]
         total_quantity_ml = total_liters * qty_per_liter
         
-        # Spray schedule (typically 3 sprays, 7-10 days apart)
         spray_schedule = {
             "first_spray": "Within 2 days of disease detection",
             "second_spray": f"{pest_data['spray_interval_days']} days after first spray",
@@ -99,7 +90,7 @@ class PesticicdeAdvisor:
                 "storage": "Store in cool, dry place away from children"
             },
             "cost_estimate": {
-                "price_per_ml": 0.5,  # Example: adjust based on real pricing
+                "price_per_ml": 0.5,
                 "estimated_cost": round(total_quantity_ml * 0.5 / 1000, 2)
             }
         }
@@ -110,15 +101,12 @@ async def recommend_pesticide_dose(
     pesticide_name: str,
     farm_size_acres: float,
     crop: str,
-    current_user: dict = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    current_user: dict = Depends(get_current_user)
 ):
     """Get pesticide dosage recommendation"""
     
     try:
-        farmer_id = current_user["user_id"]
-        
-        # Get dosage
+        farmer_id = str(current_user.get("user_id", "1"))
         dosage = PesticicdeAdvisor.get_dosage(disease, pesticide_name, farm_size_acres, crop)
         
         if not dosage:
@@ -128,7 +116,6 @@ async def recommend_pesticide_dose(
             )
         
         logger.info(f"Pesticide recommendation: {pesticide_name} for {disease} - Farmer {farmer_id}")
-        
         return dosage
     
     except Exception as e:
@@ -145,16 +132,13 @@ async def get_available_pesticides(
     current_user: dict = Depends(get_current_user)
 ):
     """Get available pesticides for disease/crop"""
-    
     results = []
-    
     for name, data in PesticicdeAdvisor.PESTICIDE_DATABASE.items():
         match = True
         if disease and disease not in data["for_diseases"]:
             match = False
         if crop and crop not in data["for_crops"]:
             match = False
-        
         if match:
             results.append({
                 "name": name,
@@ -162,18 +146,13 @@ async def get_available_pesticides(
                 "for_diseases": data["for_diseases"],
                 "for_crops": data["for_crops"]
             })
-    
-    return {
-        "total": len(results),
-        "pesticides": results
-    }
+    return {"total": len(results), "pesticides": results}
 
 @router.get("/database")
 async def get_pesticide_database(
     current_user: dict = Depends(get_current_user)
 ):
     """Get full pesticide database (reference)"""
-    
     return {
         "total_pesticides": len(PesticicdeAdvisor.PESTICIDE_DATABASE),
         "database": PesticicdeAdvisor.PESTICIDE_DATABASE

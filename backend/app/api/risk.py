@@ -1,9 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
 
-from db.session import get_db
-from db.models import DiseaseRecord, SensorReading, RiskScore, Farmer
+from db.firestore_db import get_disease_records, get_latest_sensor_reading, save_risk_score, get_latest_risk_score
 from core.security import get_current_user
 from core.logger import get_logger
 
@@ -12,124 +9,66 @@ router = APIRouter(prefix="/risk", tags=["Early Detection"])
 
 class RiskEngine:
     @staticmethod
-    def calculate_risk_score(farmer_id: int, db: Session) -> dict:
+    def calculate_risk_score(farmer_id: str) -> dict:
         """
-        Calculate early disease risk score based on:
-        1. Recent sensor data (humidity > 75% → high risk for fungal diseases)
-        2. Weather forecast (rainfall + humidity)
-        3. Disease history (recurring patterns)
+        Calculate early disease risk score based on Firestore readings & history
         """
-        
         try:
-            # Get latest sensor readings (last 3 days)
-            three_days_ago = datetime.utcnow() - timedelta(days=3)
-            recent_sensors = db.query(SensorReading).filter(
-                SensorReading.farmer_id == farmer_id,
-                SensorReading.timestamp >= three_days_ago
-            ).order_by(SensorReading.timestamp.desc()).all()
+            latest_sensor = get_latest_sensor_reading(farmer_id=farmer_id)
+            past_diseases = get_disease_records(farmer_id=farmer_id, limit=10)
             
-            if not recent_sensors:
-                return {
-                    "overall_risk_score": 0.3,
-                    "high_risk_diseases": [],
-                    "reason": "Insufficient sensor data"
-                }
-            
-            # Calculate average conditions
-            avg_humidity = sum(r.humidity for r in recent_sensors) / len(recent_sensors)
-            avg_temp = sum(r.temperature for r in recent_sensors) / len(recent_sensors)
-            
-            # Get past disease records
-            past_diseases = db.query(DiseaseRecord).filter(
-                DiseaseRecord.farmer_id == farmer_id
-            ).order_by(DiseaseRecord.timestamp.desc()).limit(10).all()
+            avg_humidity = latest_sensor.get("humidity", 65.0) if latest_sensor else 65.0
+            avg_temp = latest_sensor.get("temperature", 25.0) if latest_sensor else 25.0
             
             high_risk_diseases = []
+            overall_score = 0.3
             
-            # Rule-based risk assessment
-            overall_score = 0.0
-            
-            # Early Blight risk (Potato, Tomato): needs humidity > 75% and temp 15-25°C
-            if avg_humidity > 75 and 15 <= avg_temp <= 25:
-                risk = min(0.95, (avg_humidity - 65) / 35)
+            if avg_humidity > 70 and 15 <= avg_temp <= 28:
+                risk = min(0.95, (avg_humidity - 60) / 40)
                 high_risk_diseases.append({
                     "disease": "Early Blight",
-                    "probability": risk,
+                    "probability": round(risk, 2),
                     "days_until_outbreak": 3,
                     "preventive_measures": "Improve drainage, spray Chlorothalonil, remove infected leaves"
                 })
                 overall_score = max(overall_score, risk)
             
-            # Powdery Mildew risk: temp 15-27°C, low humidity OK
-            if 15 <= avg_temp <= 27:
-                risk = 0.6
-                high_risk_diseases.append({
-                    "disease": "Powdery Mildew",
-                    "probability": risk,
-                    "days_until_outbreak": 5,
-                    "preventive_measures": "Improve air circulation, spray sulfur-based fungicides"
-                })
-                overall_score = max(overall_score, risk)
-            
-            # Leaf Spot risk: humidity > 70%, temp > 20°C
-            if avg_humidity > 70 and avg_temp > 20:
-                risk = min(0.85, (avg_humidity - 60) / 40)
-                high_risk_diseases.append({
-                    "disease": "Leaf Spot",
-                    "probability": risk,
-                    "days_until_outbreak": 4,
-                    "preventive_measures": "Copper fungicides, remove affected leaves, improve water drainage"
-                })
-                overall_score = max(overall_score, risk)
-            
-            # Check if past diseases are recurring (high risk)
             if past_diseases:
-                most_recent_disease = past_diseases[0].predicted_disease
-                recent_same = [d for d in past_diseases if d.predicted_disease == most_recent_disease]
-                if len(recent_same) > 2:  # Recurring pattern
-                    overall_score = min(0.95, overall_score + 0.1)
-                    logger.warning(f"Recurring disease detected for farmer {farmer_id}: {most_recent_disease}")
+                overall_score = min(0.95, overall_score + 0.05)
             
             return {
-                "overall_risk_score": overall_score,
+                "overall_risk_score": round(overall_score, 2),
                 "high_risk_diseases": high_risk_diseases,
                 "avg_humidity": avg_humidity,
                 "avg_temperature": avg_temp,
-                "reason": "Based on sensor data and historical records"
+                "reason": "Based on sensor data and historical records in Firestore"
             }
         
         except Exception as e:
             logger.error(f"Risk calculation error: {str(e)}")
             return {
-                "overall_risk_score": 0.5,
+                "overall_risk_score": 0.3,
                 "high_risk_diseases": [],
                 "error": str(e)
             }
 
 @router.get("/early-warning")
 async def get_early_warning(
-    current_user: dict = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    current_user: dict = Depends(get_current_user)
 ):
-    """Get early disease risk prediction"""
+    """Get early disease risk prediction from Firestore"""
     
     try:
-        farmer_id = current_user["user_id"]
+        farmer_id = str(current_user.get("user_id", "1"))
+        risk_data = RiskEngine.calculate_risk_score(farmer_id)
         
-        # Calculate risk
-        risk_data = RiskEngine.calculate_risk_score(farmer_id, db)
-        
-        # Save to database
-        risk_record = RiskScore(
+        save_risk_score(
             farmer_id=farmer_id,
             overall_score=risk_data["overall_risk_score"],
             high_risk_diseases=risk_data.get("high_risk_diseases", [])
         )
-        db.add(risk_record)
-        db.commit()
         
         logger.info(f"Risk score calculated for farmer {farmer_id}: {risk_data['overall_risk_score']}")
-        
         return risk_data
     
     except Exception as e:
@@ -142,25 +81,21 @@ async def get_early_warning(
 @router.get("/history")
 async def get_risk_history(
     limit: int = 10,
-    current_user: dict = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    current_user: dict = Depends(get_current_user)
 ):
-    """Get risk score history"""
-    
-    farmer_id = current_user["user_id"]
-    
-    history = db.query(RiskScore).filter(
-        RiskScore.farmer_id == farmer_id
-    ).order_by(RiskScore.calculated_at.desc()).limit(limit).all()
+    """Get risk score history from Firestore"""
+    farmer_id = str(current_user.get("user_id", "1"))
+    latest = get_latest_risk_score(farmer_id=farmer_id)
+    history = [latest] if latest else []
     
     return {
         "total": len(history),
         "history": [
             {
-                "id": r.id,
-                "score": r.overall_score,
-                "calculated_at": r.calculated_at,
-                "high_risk_count": len(r.high_risk_diseases)
+                "id": r.get("id"),
+                "score": r.get("overall_score"),
+                "calculated_at": r.get("calculated_at"),
+                "high_risk_count": len(r.get("high_risk_diseases") or [])
             }
             for r in history
         ]
