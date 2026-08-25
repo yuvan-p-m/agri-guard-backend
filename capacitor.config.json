@@ -1,0 +1,10 @@
+{
+  "appId": "com.agri.app",
+  "appName": "AgriGuard",
+  "webDir": "frontend-repo/dist",
+  "server": {
+    "androidScheme": "https",
+    "cleartext": true
+  },
+  "bundledWebRuntime": false
+}

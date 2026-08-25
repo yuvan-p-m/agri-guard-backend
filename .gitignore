@@ -53,8 +53,16 @@ data/processed/*
 
 # Frontend
 frontend/node_modules/
+frontend-repo/node_modules/
+node_modules/
 frontend/dist/
+frontend-repo/dist/
 frontend/.vite/
+frontend-repo/.vite/
+
+# Database
+*.db
+*.sqlite3
 
 # Tests
 .pytest_cache/

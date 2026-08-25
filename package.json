@@ -1,0 +1,32 @@
+{
+  "name": "sih-agri-smart",
+  "version": "1.0.0",
+  "description": "**Early Crop Disease Detection for Smart Agriculture**",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "dev": "npm --prefix frontend-repo run dev",
+    "dev:frontend": "npm --prefix frontend-repo run dev",
+    "dev:backend": "cd backend && .\\venv\\Scripts\\python.exe -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000",
+    "build": "npm --prefix frontend-repo run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kevin08joel/SIH-Agri-gaurd.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/kevin08joel/SIH-Agri-gaurd/issues"
+  },
+  "homepage": "https://github.com/kevin08joel/SIH-Agri-gaurd#readme",
+  "dependencies": {
+    "@capacitor/cli": "^8.5.0",
+    "@capacitor/core": "^8.5.0"
+  }
+}

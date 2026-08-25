@@ -22,6 +22,8 @@ def _build_user_profile(user: User) -> UserProfileResponse:
         cropType=user.crop_type or "Citrus (Orange / Lemon)",
         primaryCrop=user.crop_type or "Citrus (Orange / Lemon)",
         location=user.location or "Nagpur",
+        latitude=getattr(user, 'latitude', None),
+        longitude=getattr(user, 'longitude', None),
         role=user.role or "farmer",
         farmSize=2.5,
         farmUnit="Acres",
@@ -75,6 +77,8 @@ def register(payload: UserRegister, db: Session = Depends(get_db)):
             password_hash=hash_password(payload.password),
             crop_type=payload.crop_type,
             location=payload.location,
+            latitude=payload.latitude,
+            longitude=payload.longitude,
             role=payload.role or "farmer"
         )
 

@@ -11,6 +11,8 @@ class UserRegister(BaseModel):
     confirm_password: str
     crop_type: Optional[str] = "Citrus (Orange / Lemon)"
     location: Optional[str] = "Nagpur"
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
     role: Optional[str] = "farmer"
 
 class UserLogin(BaseModel):
@@ -46,6 +48,8 @@ class UserProfileResponse(BaseModel):
     cropType: Optional[str] = "Citrus (Orange / Lemon)"
     primaryCrop: Optional[str] = "Citrus (Orange / Lemon)"
     location: Optional[str] = "Nagpur"
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
     role: Optional[str] = "farmer"
     farmSize: Optional[float] = 2.5
     farmUnit: Optional[str] = "Acres"

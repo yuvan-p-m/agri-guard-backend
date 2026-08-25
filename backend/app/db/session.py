@@ -26,6 +26,20 @@ def init_db():
     with engine.connect() as conn:
         from sqlalchemy import inspect, text
         inspector = inspect(engine)
+        if "users" in inspector.get_table_names():
+            user_cols = [c["name"] for c in inspector.get_columns("users")]
+            missing_user_cols = {
+                "latitude": "FLOAT",
+                "longitude": "FLOAT"
+            }
+            for col_name, col_type in missing_user_cols.items():
+                if col_name not in user_cols:
+                    try:
+                        conn.execute(text(f"ALTER TABLE users ADD COLUMN {col_name} {col_type}"))
+                        conn.commit()
+                    except Exception:
+                        pass
+
         if "farmers" in inspector.get_table_names():
             columns = [c["name"] for c in inspector.get_columns("farmers")]
             missing_cols = {

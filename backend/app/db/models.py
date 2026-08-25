@@ -14,6 +14,8 @@ class User(Base):
     password_hash = Column(Text, nullable=False)
     crop_type = Column(String(50), nullable=True)
     location = Column(String(100), nullable=True)
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
     role = Column(String(50), default="farmer")
     created_at = Column(DateTime, default=datetime.utcnow)
 
