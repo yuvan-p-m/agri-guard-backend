@@ -36,7 +36,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
         expire = datetime.now(timezone.utc) + expires_delta
     else:
         expire = datetime.now(timezone.utc) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    
+
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
@@ -52,7 +52,7 @@ def decode_token(token: str) -> Optional[dict]:
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
     """Get current authenticated user from Firebase ID token or Bearer token"""
     token = credentials.credentials
-    
+
     # Try verifying as Firebase ID token if Firebase Admin is initialized
     if is_firebase_initialized():
         try:
@@ -72,7 +72,7 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
             "email": payload.get("email"),
             "name": payload.get("name")
         }
-    
+
     # Development/Test fallback for plain strings
     if token and not token.startswith("ey"):
         return {"user_id": token, "email": f"{token}@example.com"}

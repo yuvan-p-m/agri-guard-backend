@@ -70,7 +70,6 @@ class DiseaseResponse(BaseModel):
     treatment: str
     pesticide_dose: str
     prediction_id: int
-    ecommerce_links: dict = {}
 
 class DiseaseHistory(BaseModel):
     id: int

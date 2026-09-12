@@ -20,7 +20,7 @@ def init_firebase():
 
     enable_fb = os.getenv("ENABLE_FIREBASE", "true").lower() in ("true", "1", "yes")
     cred_path = os.getenv("FIREBASE_SERVICE_ACCOUNT_KEY", "serviceAccountKey.json")
-    
+
     if enable_fb and os.path.exists(cred_path):
         try:
             cred = credentials.Certificate(cred_path)

@@ -10,14 +10,14 @@ from core.logger import get_logger
 
 load_dotenv()
 logger = get_logger(__name__)
-# Keep the prefix without trailing slash so the new root route `/` becomes `/weather/` 
+# Keep the prefix without trailing slash so the new root route `/` becomes `/weather/`
 # Wait, if prefix="/weather", `@router.get("")` is `/weather`.
 router = APIRouter(prefix="/weather", tags=["Weather Integration"])
 
-WEATHER_API_KEY = os.getenv("WEATHER_API_KEY", "46ca430cab2fd36dc4eb73c560925110")
+WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
 
 CITY_COORDINATES = {
-    "Nagpur": {"lat": 21.1458, "lng": 79.0882, "state": "Maharashtra"},
+    "getting location": {"lat": 21.1458, "lng": 79.0882, "state": "Maharashtra"},
     "Nashik": {"lat": 19.9975, "lng": 73.7898, "state": "Maharashtra"},
     "Coimbatore": {"lat": 11.0168, "lng": 76.9558, "state": "Tamil Nadu"},
     "Varanasi": {"lat": 25.3176, "lng": 82.9739, "state": "Uttar Pradesh"},
@@ -28,7 +28,7 @@ CITY_COORDINATES = {
 class WeatherService:
     @staticmethod
     def get_city_coords(city_name: str) -> dict:
-        clean = city_name.split("(")[0].strip() if city_name else "Nagpur"
+        clean = city_name.split("(")[0].strip() if city_name else "getting location"
         for key, info in CITY_COORDINATES.items():
             if key.lower() in clean.lower() or clean.lower() in key.lower():
                 return info
@@ -75,7 +75,7 @@ class WeatherService:
         return "", ""
 
     @staticmethod
-    def fetch_weather(lat: float = None, lon: float = None, city: str = "Nagpur") -> dict:
+    def fetch_weather(lat: float = None, lon: float = None, city: str = "getting location") -> dict:
         """
         Fetch live weather telemetry from OpenWeatherMap API using GPS coords or city fallback,
         and derive dynamic weather risk alerts.
@@ -84,7 +84,7 @@ class WeatherService:
             coords = WeatherService.get_city_coords(city)
             lat, lon = coords["lat"], coords["lng"]
 
-        location_name = city.split("(")[0].strip() if city else "Nagpur"
+        location_name = city.split("(")[0].strip() if city else "getting location"
         state_name = "India"
         api_key = os.getenv("WEATHER_API_KEY", WEATHER_API_KEY)
 
@@ -102,7 +102,7 @@ class WeatherService:
                 response = requests.get(url, timeout=6)
                 if response.status_code == 200:
                     data = response.json()
-                    
+
                     if not osm_loc and data.get("city") and data["city"].get("name"):
                         raw_name = data["city"]["name"]
                         if "Saint Thomas Mount" in raw_name or "St. Thomas Mount" in raw_name:
@@ -168,7 +168,7 @@ class WeatherService:
 
         # Generate dynamic weather alerts based on real conditions
         dynamic_alerts = []
-        
+
         if humidity >= 75:
             dynamic_alerts.append({
                 "id": "alert-fungal-1",

@@ -1,0 +1,448 @@
+{
+  "model_name": "Random Forest Crop Classifier",
+  "algorithm": "RandomForestClassifier",
+  "accuracy": 99.4,
+  "total_samples": 4200,
+  "classes": [
+    "apple",
+    "bajra",
+    "banana",
+    "barley",
+    "blackgram",
+    "chickpea",
+    "chilli",
+    "coconut",
+    "coffee",
+    "cotton",
+    "garlic",
+    "ginger",
+    "grapes",
+    "groundnut",
+    "jowar",
+    "jute",
+    "kidneybeans",
+    "lentil",
+    "maize",
+    "mango",
+    "mothbeans",
+    "mungbean",
+    "muskmelon",
+    "mustard",
+    "okra",
+    "onion",
+    "orange",
+    "papaya",
+    "pigeonpeas",
+    "pomegranate",
+    "potato",
+    "ragi",
+    "rice",
+    "rubber",
+    "sesame",
+    "soybean",
+    "sugarcane",
+    "sunflower",
+    "tomato",
+    "turmeric",
+    "watermelon",
+    "wheat"
+  ],
+  "features": [
+    "N",
+    "P",
+    "K",
+    "temperature",
+    "humidity",
+    "ph",
+    "rainfall"
+  ],
+  "feature_importances": {
+    "N": 0.1359,
+    "P": 0.1421,
+    "K": 0.18,
+    "temperature": 0.099,
+    "humidity": 0.169,
+    "ph": 0.0521,
+    "rainfall": 0.2219
+  },
+  "crop_profiles": {
+    "apple": {
+      "ideal_N": 20.8,
+      "ideal_P": 134.2,
+      "ideal_K": 199.9,
+      "ideal_temp": 22.6,
+      "ideal_humidity": 92.3,
+      "ideal_ph": 5.93,
+      "ideal_rainfall": 112.7
+    },
+    "bajra": {
+      "ideal_N": 80.6,
+      "ideal_P": 40.0,
+      "ideal_K": 40.1,
+      "ideal_temp": 29.9,
+      "ideal_humidity": 45.0,
+      "ideal_ph": 6.76,
+      "ideal_rainfall": 40.0
+    },
+    "banana": {
+      "ideal_N": 100.2,
+      "ideal_P": 82.0,
+      "ideal_K": 50.0,
+      "ideal_temp": 27.4,
+      "ideal_humidity": 80.4,
+      "ideal_ph": 5.98,
+      "ideal_rainfall": 104.6
+    },
+    "barley": {
+      "ideal_N": 60.4,
+      "ideal_P": 30.0,
+      "ideal_K": 30.0,
+      "ideal_temp": 20.1,
+      "ideal_humidity": 64.9,
+      "ideal_ph": 6.77,
+      "ideal_rainfall": 71.2
+    },
+    "blackgram": {
+      "ideal_N": 40.0,
+      "ideal_P": 67.5,
+      "ideal_K": 19.2,
+      "ideal_temp": 30.0,
+      "ideal_humidity": 65.1,
+      "ideal_ph": 7.13,
+      "ideal_rainfall": 67.9
+    },
+    "chickpea": {
+      "ideal_N": 40.1,
+      "ideal_P": 67.8,
+      "ideal_K": 79.9,
+      "ideal_temp": 18.9,
+      "ideal_humidity": 16.9,
+      "ideal_ph": 7.34,
+      "ideal_rainfall": 80.1
+    },
+    "chilli": {
+      "ideal_N": 99.9,
+      "ideal_P": 60.5,
+      "ideal_K": 50.0,
+      "ideal_temp": 27.9,
+      "ideal_humidity": 75.0,
+      "ideal_ph": 6.01,
+      "ideal_rainfall": 118.2
+    },
+    "coconut": {
+      "ideal_N": 22.0,
+      "ideal_P": 16.9,
+      "ideal_K": 30.6,
+      "ideal_temp": 27.4,
+      "ideal_humidity": 94.8,
+      "ideal_ph": 5.98,
+      "ideal_rainfall": 175.7
+    },
+    "coffee": {
+      "ideal_N": 101.2,
+      "ideal_P": 28.7,
+      "ideal_K": 29.9,
+      "ideal_temp": 25.5,
+      "ideal_humidity": 58.9,
+      "ideal_ph": 6.79,
+      "ideal_rainfall": 158.1
+    },
+    "cotton": {
+      "ideal_N": 117.8,
+      "ideal_P": 46.2,
+      "ideal_K": 19.6,
+      "ideal_temp": 24.0,
+      "ideal_humidity": 79.8,
+      "ideal_ph": 6.91,
+      "ideal_rainfall": 80.4
+    },
+    "garlic": {
+      "ideal_N": 79.9,
+      "ideal_P": 49.9,
+      "ideal_K": 49.9,
+      "ideal_temp": 22.0,
+      "ideal_humidity": 64.9,
+      "ideal_ph": 6.52,
+      "ideal_rainfall": 100.0
+    },
+    "ginger": {
+      "ideal_N": 149.6,
+      "ideal_P": 49.8,
+      "ideal_K": 100.1,
+      "ideal_temp": 27.9,
+      "ideal_humidity": 71.7,
+      "ideal_ph": 6.54,
+      "ideal_rainfall": 151.6
+    },
+    "grapes": {
+      "ideal_N": 23.2,
+      "ideal_P": 132.5,
+      "ideal_K": 200.1,
+      "ideal_temp": 23.8,
+      "ideal_humidity": 81.9,
+      "ideal_ph": 6.03,
+      "ideal_rainfall": 69.6
+    },
+    "groundnut": {
+      "ideal_N": 24.9,
+      "ideal_P": 49.5,
+      "ideal_K": 29.8,
+      "ideal_temp": 27.1,
+      "ideal_humidity": 52.0,
+      "ideal_ph": 6.2,
+      "ideal_rainfall": 55.3
+    },
+    "jowar": {
+      "ideal_N": 80.6,
+      "ideal_P": 40.4,
+      "ideal_K": 40.0,
+      "ideal_temp": 28.0,
+      "ideal_humidity": 55.0,
+      "ideal_ph": 6.48,
+      "ideal_rainfall": 84.7
+    },
+    "jute": {
+      "ideal_N": 78.4,
+      "ideal_P": 46.9,
+      "ideal_K": 40.0,
+      "ideal_temp": 25.0,
+      "ideal_humidity": 79.6,
+      "ideal_ph": 6.73,
+      "ideal_rainfall": 174.8
+    },
+    "kidneybeans": {
+      "ideal_N": 20.8,
+      "ideal_P": 67.5,
+      "ideal_K": 20.1,
+      "ideal_temp": 20.1,
+      "ideal_humidity": 21.6,
+      "ideal_ph": 5.75,
+      "ideal_rainfall": 105.9
+    },
+    "lentil": {
+      "ideal_N": 18.8,
+      "ideal_P": 68.4,
+      "ideal_K": 19.4,
+      "ideal_temp": 24.5,
+      "ideal_humidity": 64.8,
+      "ideal_ph": 6.93,
+      "ideal_rainfall": 45.7
+    },
+    "maize": {
+      "ideal_N": 77.8,
+      "ideal_P": 48.4,
+      "ideal_K": 19.8,
+      "ideal_temp": 22.4,
+      "ideal_humidity": 65.1,
+      "ideal_ph": 6.25,
+      "ideal_rainfall": 84.8
+    },
+    "mango": {
+      "ideal_N": 20.1,
+      "ideal_P": 27.2,
+      "ideal_K": 29.9,
+      "ideal_temp": 31.2,
+      "ideal_humidity": 50.2,
+      "ideal_ph": 5.77,
+      "ideal_rainfall": 94.7
+    },
+    "mothbeans": {
+      "ideal_N": 21.4,
+      "ideal_P": 48.0,
+      "ideal_K": 20.2,
+      "ideal_temp": 28.2,
+      "ideal_humidity": 53.2,
+      "ideal_ph": 6.83,
+      "ideal_rainfall": 51.2
+    },
+    "mungbean": {
+      "ideal_N": 21.0,
+      "ideal_P": 47.3,
+      "ideal_K": 19.9,
+      "ideal_temp": 28.5,
+      "ideal_humidity": 85.5,
+      "ideal_ph": 6.72,
+      "ideal_rainfall": 48.4
+    },
+    "muskmelon": {
+      "ideal_N": 100.3,
+      "ideal_P": 17.7,
+      "ideal_K": 50.1,
+      "ideal_temp": 28.7,
+      "ideal_humidity": 92.3,
+      "ideal_ph": 6.36,
+      "ideal_rainfall": 24.7
+    },
+    "mustard": {
+      "ideal_N": 79.1,
+      "ideal_P": 46.2,
+      "ideal_K": 50.2,
+      "ideal_temp": 22.0,
+      "ideal_humidity": 64.4,
+      "ideal_ph": 6.51,
+      "ideal_rainfall": 74.5
+    },
+    "okra": {
+      "ideal_N": 60.1,
+      "ideal_P": 40.1,
+      "ideal_K": 30.2,
+      "ideal_temp": 30.0,
+      "ideal_humidity": 79.5,
+      "ideal_ph": 6.47,
+      "ideal_rainfall": 180.4
+    },
+    "onion": {
+      "ideal_N": 60.2,
+      "ideal_P": 40.3,
+      "ideal_K": 50.5,
+      "ideal_temp": 24.9,
+      "ideal_humidity": 60.2,
+      "ideal_ph": 6.49,
+      "ideal_rainfall": 64.7
+    },
+    "orange": {
+      "ideal_N": 19.6,
+      "ideal_P": 16.6,
+      "ideal_K": 10.0,
+      "ideal_temp": 22.8,
+      "ideal_humidity": 92.2,
+      "ideal_ph": 7.02,
+      "ideal_rainfall": 110.5
+    },
+    "papaya": {
+      "ideal_N": 49.9,
+      "ideal_P": 59.0,
+      "ideal_K": 50.0,
+      "ideal_temp": 33.7,
+      "ideal_humidity": 92.4,
+      "ideal_ph": 6.74,
+      "ideal_rainfall": 142.6
+    },
+    "pigeonpeas": {
+      "ideal_N": 20.7,
+      "ideal_P": 67.7,
+      "ideal_K": 20.3,
+      "ideal_temp": 27.7,
+      "ideal_humidity": 48.1,
+      "ideal_ph": 5.79,
+      "ideal_rainfall": 149.5
+    },
+    "pomegranate": {
+      "ideal_N": 18.9,
+      "ideal_P": 18.8,
+      "ideal_K": 40.2,
+      "ideal_temp": 21.8,
+      "ideal_humidity": 90.1,
+      "ideal_ph": 6.43,
+      "ideal_rainfall": 107.5
+    },
+    "potato": {
+      "ideal_N": 79.6,
+      "ideal_P": 59.8,
+      "ideal_K": 80.4,
+      "ideal_temp": 20.2,
+      "ideal_humidity": 71.9,
+      "ideal_ph": 6.5,
+      "ideal_rainfall": 706.1
+    },
+    "ragi": {
+      "ideal_N": 120.3,
+      "ideal_P": 29.8,
+      "ideal_K": 30.1,
+      "ideal_temp": 25.0,
+      "ideal_humidity": 75.0,
+      "ideal_ph": 5.54,
+      "ideal_rainfall": 150.0
+    },
+    "rice": {
+      "ideal_N": 79.9,
+      "ideal_P": 47.6,
+      "ideal_K": 39.9,
+      "ideal_temp": 23.7,
+      "ideal_humidity": 82.3,
+      "ideal_ph": 6.43,
+      "ideal_rainfall": 236.2
+    },
+    "rubber": {
+      "ideal_N": 60.2,
+      "ideal_P": 40.0,
+      "ideal_K": 80.3,
+      "ideal_temp": 28.0,
+      "ideal_humidity": 80.7,
+      "ideal_ph": 5.5,
+      "ideal_rainfall": 201.0
+    },
+    "sesame": {
+      "ideal_N": 39.8,
+      "ideal_P": 19.9,
+      "ideal_K": 20.2,
+      "ideal_temp": 29.9,
+      "ideal_humidity": 54.7,
+      "ideal_ph": 6.99,
+      "ideal_rainfall": 50.0
+    },
+    "soybean": {
+      "ideal_N": 20.0,
+      "ideal_P": 59.4,
+      "ideal_K": 20.1,
+      "ideal_temp": 25.8,
+      "ideal_humidity": 67.7,
+      "ideal_ph": 6.56,
+      "ideal_rainfall": 65.1
+    },
+    "sugarcane": {
+      "ideal_N": 120.1,
+      "ideal_P": 55.6,
+      "ideal_K": 178.1,
+      "ideal_temp": 27.1,
+      "ideal_humidity": 81.9,
+      "ideal_ph": 6.51,
+      "ideal_rainfall": 951.4
+    },
+    "sunflower": {
+      "ideal_N": 59.6,
+      "ideal_P": 40.0,
+      "ideal_K": 60.0,
+      "ideal_temp": 21.9,
+      "ideal_humidity": 64.8,
+      "ideal_ph": 6.53,
+      "ideal_rainfall": 59.6
+    },
+    "tomato": {
+      "ideal_N": 80.0,
+      "ideal_P": 39.7,
+      "ideal_K": 49.9,
+      "ideal_temp": 24.9,
+      "ideal_humidity": 74.8,
+      "ideal_ph": 6.02,
+      "ideal_rainfall": 703.9
+    },
+    "turmeric": {
+      "ideal_N": 134.0,
+      "ideal_P": 90.3,
+      "ideal_K": 89.4,
+      "ideal_temp": 27.9,
+      "ideal_humidity": 84.6,
+      "ideal_ph": 6.0,
+      "ideal_rainfall": 1499.8
+    },
+    "watermelon": {
+      "ideal_N": 99.4,
+      "ideal_P": 17.0,
+      "ideal_K": 50.2,
+      "ideal_temp": 25.6,
+      "ideal_humidity": 85.2,
+      "ideal_ph": 6.5,
+      "ideal_rainfall": 50.8
+    },
+    "wheat": {
+      "ideal_N": 120.3,
+      "ideal_P": 60.3,
+      "ideal_K": 39.6,
+      "ideal_temp": 22.0,
+      "ideal_humidity": 74.7,
+      "ideal_ph": 6.52,
+      "ideal_rainfall": 89.8
+    }
+  }
+}

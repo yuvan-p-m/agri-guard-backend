@@ -4,6 +4,7 @@ from db.firestore_db import add_sensor_reading, get_latest_sensor_reading
 from schemas.common import SensorReading as SensorReadingSchema
 from core.security import get_current_user
 from core.logger import get_logger
+from services.sensor_service import get_interpreted_sensor_snapshot, fetch_live_sensor_data
 
 logger = get_logger(__name__)
 router = APIRouter(prefix="/sensors", tags=["Sensor Integration"])
@@ -14,10 +15,10 @@ async def save_sensor_reading(
     current_user: dict = Depends(get_current_user)
 ):
     """Add sensor reading (IoT device data) to Firestore"""
-    
+
     try:
         farmer_id = str(current_user.get("user_id", "1"))
-        
+
         reading_data = {
             "farmer_id": farmer_id,
             "device_id": payload.device_id,
@@ -27,18 +28,18 @@ async def save_sensor_reading(
             "temperature": payload.temperature,
             "humidity": payload.humidity
         }
-        
+
         saved = add_sensor_reading(reading_data)
         doc_id = str(saved.get("id"))
-        
+
         logger.info(f"Sensor reading saved: {doc_id} for farmer {farmer_id} from device {payload.device_id}")
-        
+
         return {
             "status": "ok",
             "reading_id": doc_id,
             "timestamp": saved.get("timestamp")
         }
-    
+
     except Exception as e:
         logger.error(f"Sensor reading error: {str(e)}")
         raise HTTPException(
@@ -54,9 +55,9 @@ async def get_latest_readings(
     """Get latest sensor readings for farmer from Firestore"""
     farmer_id = str(current_user.get("user_id", "1"))
     latest = get_latest_sensor_reading(farmer_id=farmer_id)
-    
+
     readings = [latest] if latest else []
-    
+
     return {
         "total": len(readings),
         "readings": [
@@ -81,13 +82,13 @@ async def sensor_status(
     """Get current sensor health status"""
     farmer_id = str(current_user.get("user_id", "1"))
     latest = get_latest_sensor_reading(farmer_id=farmer_id)
-    
+
     if not latest:
         return {
             "status": "no_data",
             "message": "No sensor data yet"
         }
-    
+
     return {
         "status": "healthy",
         "last_reading": latest.get("timestamp"),
@@ -100,3 +101,11 @@ async def sensor_status(
             "humidity": latest.get("humidity")
         }
     }
+
+@router.get("/live")
+async def get_live_sensors():
+    """
+    Get current live IoT sensor snapshot from Firebase Realtime Database
+    with standard agronomic interpretations and hardware connection warnings.
+    """
+    return get_interpreted_sensor_snapshot()

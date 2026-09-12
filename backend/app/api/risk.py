@@ -16,13 +16,13 @@ class RiskEngine:
         try:
             latest_sensor = get_latest_sensor_reading(farmer_id=farmer_id)
             past_diseases = get_disease_records(farmer_id=farmer_id, limit=10)
-            
+
             avg_humidity = latest_sensor.get("humidity", 65.0) if latest_sensor else 65.0
             avg_temp = latest_sensor.get("temperature", 25.0) if latest_sensor else 25.0
-            
+
             high_risk_diseases = []
             overall_score = 0.3
-            
+
             if avg_humidity > 70 and 15 <= avg_temp <= 28:
                 risk = min(0.95, (avg_humidity - 60) / 40)
                 high_risk_diseases.append({
@@ -32,10 +32,10 @@ class RiskEngine:
                     "preventive_measures": "Improve drainage, spray Chlorothalonil, remove infected leaves"
                 })
                 overall_score = max(overall_score, risk)
-            
+
             if past_diseases:
                 overall_score = min(0.95, overall_score + 0.05)
-            
+
             return {
                 "overall_risk_score": round(overall_score, 2),
                 "high_risk_diseases": high_risk_diseases,
@@ -43,7 +43,7 @@ class RiskEngine:
                 "avg_temperature": avg_temp,
                 "reason": "Based on sensor data and historical records in Firestore"
             }
-        
+
         except Exception as e:
             logger.error(f"Risk calculation error: {str(e)}")
             return {
@@ -57,20 +57,20 @@ async def get_early_warning(
     current_user: dict = Depends(get_current_user)
 ):
     """Get early disease risk prediction from Firestore"""
-    
+
     try:
         farmer_id = str(current_user.get("user_id", "1"))
         risk_data = RiskEngine.calculate_risk_score(farmer_id)
-        
+
         save_risk_score(
             farmer_id=farmer_id,
             overall_score=risk_data["overall_risk_score"],
             high_risk_diseases=risk_data.get("high_risk_diseases", [])
         )
-        
+
         logger.info(f"Risk score calculated for farmer {farmer_id}: {risk_data['overall_risk_score']}")
         return risk_data
-    
+
     except Exception as e:
         logger.error(f"Early warning error: {str(e)}")
         raise HTTPException(
@@ -87,7 +87,7 @@ async def get_risk_history(
     farmer_id = str(current_user.get("user_id", "1"))
     latest = get_latest_risk_score(farmer_id=farmer_id)
     history = [latest] if latest else []
-    
+
     return {
         "total": len(history),
         "history": [

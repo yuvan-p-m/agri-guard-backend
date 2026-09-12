@@ -50,6 +50,9 @@ _mock_db: Dict[str, Dict[str, Dict[str, Any]]] = {
     "feedback": {},
     "weather_cache": {},
     "risk_scores": {},
+    "disease_records": {},
+    "predictions": {},
+    "sensor_readings": {}
 }
 
 import os
@@ -184,9 +187,13 @@ def create_disease_record(record: Dict[str, Any]) -> Dict[str, Any]:
         except Exception as e:
             logger.error(f"Firestore create_disease_record error: {e}")
 
+    if "disease_records" not in _mock_db:
+        _mock_db["disease_records"] = {}
     _mock_db["disease_records"][doc_id] = record
     record["id"] = doc_id
     return record
+
+
 
 def get_disease_records(farmer_id: Optional[str] = None, limit: int = 20) -> List[Dict[str, Any]]:
     db = get_firestore_db()
@@ -433,3 +440,38 @@ def get_latest_risk_score(farmer_id: str) -> Optional[Dict[str, Any]]:
         "high_risk_diseases": ["Early Blight"],
         "calculated_at": _get_now_iso()
     }
+
+# ----------------------------------------------------
+# PREDICTIONS COLLECTION LOGGING
+# ----------------------------------------------------
+
+def save_prediction_to_firestore(data: Dict[str, Any]) -> Dict[str, Any]:
+    """Save prediction record to Firestore collection 'predictions'"""
+    db = get_firestore_db()
+    doc_id = str(uuid.uuid4())
+    record = {
+        "userId": str(data.get("userId") or data.get("farmer_id") or "anonymous_farmer"),
+        "disease": str(data.get("disease") or data.get("predicted_disease") or "Unknown"),
+        "confidence": float(data.get("confidence", 0.0)),
+        "imageUrl": str(data.get("imageUrl") or data.get("image_path") or ""),
+        "timestamp": _get_now_iso()
+    }
+
+    if db and is_firebase_initialized():
+        try:
+            from firebase_admin import firestore
+            db_record = record.copy()
+            db_record["timestamp"] = firestore.SERVER_TIMESTAMP
+            db.collection("predictions").document(doc_id).set(db_record)
+            record["id"] = doc_id
+            logger.info(f"Saved prediction to Firestore 'predictions' collection: {doc_id}")
+            return record
+        except Exception as e:
+            logger.error(f"Firestore save_prediction_to_firestore error: {e}")
+
+    if "predictions" not in _mock_db:
+        _mock_db["predictions"] = {}
+    _mock_db["predictions"][doc_id] = record
+    _save_disk_db()
+    record["id"] = doc_id
+    return record

@@ -8,7 +8,7 @@ router = APIRouter(prefix="/pesticides", tags=["Pesticide Advisor"])
 
 class PesticicdeAdvisor:
     """Pesticide dosage recommendations"""
-    
+
     PESTICIDE_DATABASE = {
         "Chlorothalonil": {
             "common_name": "Chlorothalonil",
@@ -56,23 +56,23 @@ class PesticicdeAdvisor:
             }
         }
     }
-    
+
     @staticmethod
     def get_dosage(disease: str, pesticide_name: str, farm_size_acres: float, crop: str) -> dict:
         if pesticide_name not in PesticicdeAdvisor.PESTICIDE_DATABASE:
             return None
-        
+
         pest_data = PesticicdeAdvisor.PESTICIDE_DATABASE[pesticide_name]
         total_liters = farm_size_acres * 550
         qty_per_liter = pest_data["quantity_per_liter"]
         total_quantity_ml = total_liters * qty_per_liter
-        
+
         spray_schedule = {
             "first_spray": "Within 2 days of disease detection",
             "second_spray": f"{pest_data['spray_interval_days']} days after first spray",
             "third_spray": f"{pest_data['spray_interval_days'] * 2} days after first spray"
         }
-        
+
         return {
             "pesticide": pesticide_name,
             "disease_target": disease,
@@ -104,20 +104,20 @@ async def recommend_pesticide_dose(
     current_user: dict = Depends(get_current_user)
 ):
     """Get pesticide dosage recommendation"""
-    
+
     try:
         farmer_id = str(current_user.get("user_id", "1"))
         dosage = PesticicdeAdvisor.get_dosage(disease, pesticide_name, farm_size_acres, crop)
-        
+
         if not dosage:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Pesticide '{pesticide_name}' not found in database"
             )
-        
+
         logger.info(f"Pesticide recommendation: {pesticide_name} for {disease} - Farmer {farmer_id}")
         return dosage
-    
+
     except Exception as e:
         logger.error(f"Pesticide recommendation error: {str(e)}")
         raise HTTPException(

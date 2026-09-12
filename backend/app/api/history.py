@@ -13,18 +13,18 @@ async def get_farm_history_dashboard(
     current_user: dict = Depends(get_current_user)
 ):
     """Get comprehensive farm history dashboard from Firestore"""
-    
+
     try:
         farmer_id = str(current_user.get("user_id", "1"))
-        
+
         all_diseases = get_disease_records(farmer_id=farmer_id, limit=100)
         all_feedback = get_feedback_records(farmer_id=farmer_id)
         latest_sensor = get_latest_sensor_reading(farmer_id=farmer_id)
-        
+
         total_detections = len(all_diseases)
         diseases_with_positive_feedback = sum(1 for f in all_feedback if f.get("worked"))
         unique_diseases = set(d.get("predicted_disease") or d.get("disease") for d in all_diseases if d.get("predicted_disease") or d.get("disease"))
-        
+
         most_recurring = None
         if all_diseases:
             disease_counts = {}
@@ -34,9 +34,9 @@ async def get_farm_history_dashboard(
                     disease_counts[name] = disease_counts.get(name, 0) + 1
             if disease_counts:
                 most_recurring = max(disease_counts, key=disease_counts.get)
-        
+
         logger.info(f"Dashboard loaded for farmer {farmer_id}")
-        
+
         return {
             "statistics": {
                 "total_detections": total_detections,
@@ -54,7 +54,7 @@ async def get_farm_history_dashboard(
             },
             "health_status": "Healthy" if not all_diseases else "Risk Detected" if total_detections > 3 else "Monitoring"
         }
-    
+
     except Exception as e:
         logger.error(f"Dashboard error: {str(e)}")
         raise HTTPException(
@@ -71,7 +71,7 @@ async def get_disease_history_endpoint(
     """Get disease detection history from Firestore"""
     farmer_id = str(current_user.get("user_id", "1"))
     records = get_disease_records(farmer_id=farmer_id, limit=limit)
-    
+
     return {
         "total": len(records),
         "period_days": days,
@@ -99,11 +99,11 @@ async def get_sensor_history_endpoint(
     farmer_id = str(current_user.get("user_id", "1"))
     latest = get_latest_sensor_reading(farmer_id=farmer_id)
     readings = [latest] if latest else []
-    
+
     avg_temp = latest.get("temperature", 27.5) if latest else 0
     avg_humidity = latest.get("humidity", 65.0) if latest else 0
     avg_moisture = latest.get("moisture", 42.0) if latest else 0
-    
+
     return {
         "total_readings": len(readings),
         "period_days": days,
@@ -134,17 +134,17 @@ async def get_farm_trends(
     """Get farm trends over time from Firestore"""
     farmer_id = str(current_user.get("user_id", "1"))
     records = get_disease_records(farmer_id=farmer_id, limit=100)
-    
+
     monthly_data = {}
     disease_frequency = {}
-    
+
     for r in records:
         ts = r.get("timestamp", "")
         month_key = ts[:7] if len(ts) >= 7 else "2026-08"
         monthly_data[month_key] = monthly_data.get(month_key, 0) + 1
         dname = r.get("predicted_disease") or r.get("disease") or "Unknown"
         disease_frequency[dname] = disease_frequency.get(dname, 0) + 1
-    
+
     return {
         "diseases_past_year": len(records),
         "monthly_breakdown": monthly_data,
@@ -158,15 +158,15 @@ async def get_history_summary(
 ):
     """Get overall farm history summary from Firestore"""
     farmer_id = str(current_user.get("user_id", "1"))
-    
+
     diseases = get_disease_records(farmer_id=farmer_id, limit=100)
     feedbacks = get_feedback_records(farmer_id=farmer_id)
     latest_sensor = get_latest_sensor_reading(farmer_id=farmer_id)
     sensor_count = 1 if latest_sensor else 0
-    
+
     unique_diseases = set(d.get("predicted_disease") or d.get("disease") for d in diseases if d.get("predicted_disease") or d.get("disease"))
     correct_preds = sum(1 for f in feedbacks if f.get("worked"))
-    
+
     return {
         "summary": {
             "total_disease_detections": len(diseases),

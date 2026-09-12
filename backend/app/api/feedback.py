@@ -14,10 +14,10 @@ async def submit_feedback(
     current_user: dict = Depends(get_current_user)
 ):
     """Submit feedback on a disease prediction to Firestore"""
-    
+
     try:
         farmer_id = str(current_user.get("user_id", "1"))
-        
+
         feedback_data = {
             "farmer_id": farmer_id,
             "prediction_id": str(payload.prediction_id),
@@ -25,22 +25,22 @@ async def submit_feedback(
             "actual_disease": payload.actual_disease,
             "comment": payload.comment
         }
-        
+
         saved = add_feedback(feedback_data)
         doc_id = str(saved.get("id"))
-        
+
         if payload.worked:
             logger.info(f"Positive feedback: Prediction {payload.prediction_id} was correct")
         else:
             logger.warning(f"Negative feedback: Prediction {payload.prediction_id} was incorrect. Actual: {payload.actual_disease}")
-        
+
         return {
             "feedback_id": doc_id,
             "status": "recorded",
             "message": "Thank you! Your feedback helps improve our AI model.",
             "impact_note": "Your feedback will be used in weekly model retraining."
         }
-    
+
     except Exception as e:
         logger.error(f"Feedback submission error: {str(e)}")
         raise HTTPException(
@@ -53,11 +53,11 @@ async def get_feedback_impact(
     current_user: dict = Depends(get_current_user)
 ):
     """See how your feedback improved the model"""
-    
+
     try:
         farmer_id = str(current_user.get("user_id", "1"))
         all_feedback = get_feedback_records(farmer_id=farmer_id)
-        
+
         if not all_feedback:
             return {
                 "total_feedback_given": 0,
@@ -67,11 +67,11 @@ async def get_feedback_impact(
                 "accuracy_improvement": 0,
                 "message": "No feedback submitted yet. Your feedback helps improve accuracy!"
             }
-        
+
         total_feedback = len(all_feedback)
         helpful_feedback = sum(1 for f in all_feedback if f.get("worked"))
         accuracy_rate = helpful_feedback / total_feedback if total_feedback > 0 else 0
-        
+
         return {
             "total_feedback_given": total_feedback,
             "helpful_feedback": helpful_feedback,
@@ -81,7 +81,7 @@ async def get_feedback_impact(
             "accuracy_improvement": round((accuracy_rate * 0.08) * 100, 1),
             "message": f"Your feedback accuracy: {round(accuracy_rate * 100, 1)}%. This helps the AI learn!"
         }
-    
+
     except Exception as e:
         logger.error(f"Feedback impact error: {str(e)}")
         raise HTTPException(
@@ -97,7 +97,7 @@ async def get_all_feedback(
     """Get all feedback submitted by farmer from Firestore"""
     farmer_id = str(current_user.get("user_id", "1"))
     feedbacks = get_feedback_records(farmer_id=farmer_id)
-    
+
     return {
         "total": len(feedbacks),
         "feedbacks": [

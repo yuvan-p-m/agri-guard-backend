@@ -48,7 +48,7 @@ def signup(payload: UserRegister):
     5. Returns success token & user profile.
     """
     email_clean = payload.email.strip().lower()
-    
+
     # 1. Input validations
     if not re.match(r"^[^@]+@[^@]+\.[^@]+$", email_clean):
         raise HTTPException(
@@ -146,6 +146,17 @@ def signup(payload: UserRegister):
     access_token = create_access_token(data={"sub": uid, "email": email_clean})
     logger.info(f"User signed up successfully: UID {uid} - {email_clean}")
 
+    # 6. Trigger instant Welcome SMS to farmer's mobile phone via Fast2SMS
+    if payload.phone:
+        try:
+            from api.alerts import SMSService
+            farmer_name = payload.full_name.strip() or "Farmer Partner"
+            welcome_msg = f"Welcome to FarmAlert, {farmer_name}! Your farm is now connected. You will receive daily weather, soil and farming tip alerts. Stay informed, farm smarter."
+            SMSService.send_sms(payload.phone, welcome_msg)
+            logger.info(f"Welcome SMS sent to farmer {payload.phone}")
+        except Exception as sms_err:
+            logger.warning(f"Welcome SMS notice: {sms_err}")
+
     return {
         "access_token": access_token,
         "token_type": "bearer",
@@ -236,13 +247,13 @@ def get_current_user_profile(current_user: dict = Depends(get_current_user)):
     user = get_user_by_id(user_id) if user_id else None
     if not user and email:
         user = get_user_by_email(email)
-    
+
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="account not found."
         )
-    
+
     return _build_user_profile_dict(user)
 
 # Root-level router for direct /signup, /register, /login requests
