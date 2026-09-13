@@ -7,11 +7,10 @@
     "dev": "npm --prefix frontend-repo run dev",
     "dev:frontend": "npm --prefix frontend-repo run dev",
     "dev:backend": "cd backend && venv/bin/python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000",
-    "build": "npm --prefix frontend-repo run build"
+    "build": "echo \"Backend deployment - no frontend build\""
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/yuvan-p-m/agri-guard-backend.git"
   },
   "license": "MIT"
-}
