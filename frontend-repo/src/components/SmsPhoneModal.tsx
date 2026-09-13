@@ -11,7 +11,7 @@ import {
   CheckCheck
 } from 'lucide-react';
 import { Language, SmsAlert } from '../types';
-import { translations } from '../data/translations';
+import { useAppTranslation } from '../i18n';
 
 interface SmsPhoneModalProps {
   isOpen: boolean;
@@ -28,7 +28,7 @@ export const SmsPhoneModal: React.FC<SmsPhoneModalProps> = ({
   phoneNumber,
   language,
 }) => {
-  const t = translations[language];
+  const { t } = useAppTranslation();
 
   if (!isOpen || !alert) return null;
 
@@ -62,7 +62,7 @@ export const SmsPhoneModal: React.FC<SmsPhoneModalProps> = ({
                 </div>
                 <div>
                   <h4 className="text-xs font-extrabold text-slate-900 flex items-center gap-1">
-                    <span>AG-AGRIGUARD</span>
+                    <span>{t.smsBrand}</span>
                     <ShieldCheck className="w-3 h-3 text-agri-600" />
                   </h4>
                   <p className="text-[10px] text-slate-500 font-mono">

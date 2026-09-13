@@ -12,7 +12,7 @@ import {
   BellRing
 } from 'lucide-react';
 import { Language, SmsAlert } from '../types';
-import { translations } from '../data/translations';
+import { useAppTranslation } from '../i18n';
 import { alertsAPI } from '../services/api';
 
 interface SmsAlertsPanelProps {
@@ -28,7 +28,7 @@ export const SmsAlertsPanel: React.FC<SmsAlertsPanelProps> = ({
   onTriggerTestSms,
   onPreviewSms,
 }) => {
-  const t = translations[language];
+  const { t } = useAppTranslation();
   const [subPhone, setSubPhone] = useState('');
   const [subStatus, setSubStatus] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -77,7 +77,7 @@ export const SmsAlertsPanel: React.FC<SmsAlertsPanelProps> = ({
       <form onSubmit={handleSubscribe} className="mt-4 p-3 rounded-2xl bg-agri-50/70 border border-agri-200/60 space-y-2">
         <div className="flex items-center gap-1.5 text-xs font-bold text-agri-950">
           <BellRing className="w-3.5 h-3.5 text-agri-600" />
-          <span>Subscribe to Daily Micro-Climate & Risk SMS Alerts</span>
+          <span>{t.subscribeRiskAlerts}</span>
         </div>
         <div className="flex items-center gap-2">
           <input
@@ -141,7 +141,7 @@ export const SmsAlertsPanel: React.FC<SmsAlertsPanelProps> = ({
                 className="text-[11px] text-agri-800 hover:text-agri-950 font-bold flex items-center gap-1"
               >
                 <Smartphone className="w-3 h-3" />
-                <span>Preview on Phone</span>
+                <span>{t.previewPhone}</span>
               </button>
 
               <button

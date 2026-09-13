@@ -1,13 +1,16 @@
 // API service for backend integration using native fetch
-import { Capacitor } from '@capacitor/core';
-import type { UserProfile } from '../types';
+import type {
+  CropAlertResponse,
+  CropRecommendationResponse,
+  MandiPricesResponse,
+  PriceForecastResponse,
+} from '../types';
 
 /**
  * Dynamically resolves the active API base endpoint:
  * 1. Runtime override via localStorage ('api_endpoint_override')
  * 2. Environment variable VITE_API_BASE_URL (with auto-adjustment for native platforms)
- * 3. Native mobile fallback: LAN IP (192.168.1.6:8000/api/v1) or Android Emulator (10.0.2.2:8000/api/v1)
- * 4. Browser web default: 127.0.0.1:8000/api/v1
+ * 3. Browser web default: 127.0.0.1:8000/api/v1
  */
 export function getApiBaseUrl(): string {
   if (typeof window !== 'undefined') {
@@ -18,19 +21,9 @@ export function getApiBaseUrl(): string {
   }
 
   const envUrl = (import.meta.env.VITE_API_BASE_URL || '').trim();
-  const isNative = typeof window !== 'undefined' && Capacitor.isNativePlatform();
-
   if (envUrl) {
     const cleanEnv = envUrl.replace(/\/+$/, '');
-    if (isNative && (cleanEnv.includes('localhost') || cleanEnv.includes('127.0.0.1'))) {
-      // Inside an Android native container, route localhost to 10.0.2.2 host alias
-      return cleanEnv.replace(/localhost|127\.0\.0\.1/g, '10.0.2.2');
-    }
     return cleanEnv;
-  }
-
-  if (isNative) {
-    return 'http://10.0.2.2:8000/api/v1';
   }
 
   return 'http://127.0.0.1:8000/api/v1';
@@ -48,30 +41,6 @@ export function setCustomApiEndpoint(url: string): void {
 
 export const API_BASE_URL = getApiBaseUrl();
 
-export interface AuthResponse {
-  access_token: string;
-  token_type: string;
-  user: UserProfile;
-}
-
-export interface RegisterPayload {
-  full_name: string;
-  email: string;
-  phone?: string;
-  password: string;
-  confirm_password: string;
-  crop_type?: string;
-  location?: string;
-  latitude?: number;
-  longitude?: number;
-  role?: string;
-}
-
-export interface LoginPayload {
-  email: string;
-  password: string;
-}
-
 async function request<T = any>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = localStorage.getItem('access_token');
   const headers: Record<string, string> = {
@@ -85,22 +54,15 @@ async function request<T = any>(endpoint: string, options: RequestInit = {}): Pr
 
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
   const primaryBaseUrl = getApiBaseUrl();
-  const isNative = typeof window !== 'undefined' && Capacitor.isNativePlatform();
 
-  // Candidates list for resilient mobile connections (primary, ADB reverse 127.0.0.1, emulator 10.0.2.2, physical LAN 192.168.1.5)
-  const candidateUrls = [
-    primaryBaseUrl,
-    ...(isNative 
-      ? ['http://127.0.0.1:8000/api/v1', 'http://10.0.2.2:8000/api/v1', 'http://192.168.1.5:8000/api/v1', 'http://192.168.1.6:8000/api/v1'] 
-      : ['http://127.0.0.1:8000/api/v1', 'http://10.0.2.2:8000/api/v1', 'http://192.168.1.5:8000/api/v1', 'http://192.168.1.6:8000/api/v1'])
-  ].filter((url, index, self) => self.indexOf(url) === index);
+  const candidateUrls = [primaryBaseUrl];
 
   let lastError: any = null;
 
   for (const candidateBase of candidateUrls) {
     try {
       const controller = new AbortController();
-      const timeoutMs = isNative ? 3500 : 6000;
+      const timeoutMs = 6000;
       const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
       const response = await fetch(`${candidateBase}${cleanEndpoint}`, {
@@ -141,33 +103,6 @@ async function request<T = any>(endpoint: string, options: RequestInit = {}): Pr
   throw customError;
 }
 
-// Auth APIs
-export const authAPI = {
-  register: async (data: RegisterPayload): Promise<AuthResponse> => {
-    const resData = await request<AuthResponse>('/auth/register', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-    if (resData?.access_token) {
-      localStorage.setItem('access_token', resData.access_token);
-    }
-    return resData;
-  },
-  login: async (data: LoginPayload): Promise<AuthResponse> => {
-    const resData = await request<AuthResponse>('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-    if (resData?.access_token) {
-      localStorage.setItem('access_token', resData.access_token);
-    }
-    return resData;
-  },
-  getMe: async (): Promise<UserProfile> => {
-    return request<UserProfile>('/auth/me');
-  }
-};
-
 // Disease Detection APIs
 export const diseaseAPI = {
   predict: async (file: File) => {
@@ -201,6 +136,21 @@ export const weatherAPI = {
     request(`/weather/forecast?${lat && lon ? `lat=${lat}&lon=${lon}` : `city=${encodeURIComponent(city || 'Nagpur')}`}`),
   getCurrent: (city?: string, lat?: number, lon?: number) =>
     request(`/weather/current?${lat && lon ? `lat=${lat}&lon=${lon}` : `city=${encodeURIComponent(city || 'Nagpur')}`}`),
+};
+
+// Crop recommendation and marketplace APIs
+export const cropAPI = {
+  getRecommendations: (location: string, language: string): Promise<CropRecommendationResponse> =>
+    request<CropRecommendationResponse>(`/crop/recommendations?location=${encodeURIComponent(location)}&language=${encodeURIComponent(language)}`),
+};
+
+export const marketplaceAPI = {
+  getMandiPrices: (crop: string, state: string): Promise<MandiPricesResponse> =>
+    request<MandiPricesResponse>(`/mandi-prices?crop=${encodeURIComponent(crop)}&state=${encodeURIComponent(state)}`),
+  getPriceForecast: (crop: string, state: string): Promise<PriceForecastResponse> =>
+    request<PriceForecastResponse>(`/price-forecast?crop=${encodeURIComponent(crop)}&state=${encodeURIComponent(state)}`),
+  getCropAlert: (crop: string): Promise<CropAlertResponse> =>
+    request<CropAlertResponse>(`/crop-alert?crop=${encodeURIComponent(crop)}`),
 };
 
 // Alert APIs

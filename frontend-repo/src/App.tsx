@@ -6,17 +6,12 @@ import type {
   WeatherInfo, 
   DiseaseDiagnosis, 
   HistoryRecord, 
-  CartItem, 
-  EcomProduct,
-  Order,
   HardwareState
 } from './types';
-import { translations } from './data/translations';
+import { useLanguage } from './i18n';
 import { cropDiseases } from './data/cropDiseases';
-import { demoProfiles, sampleWeatherStations, initialHistoryRecords } from './data/sampleHistory';
-import { ecommerceProducts } from './data/ecommerceProducts';
+import { sampleWeatherStations, initialHistoryRecords } from './data/sampleHistory';
 
-import { AuthPage } from './components/AuthPage';
 import { Header } from './components/Header';
 import { NavigationTabs, type DashboardTab } from './components/NavigationTabs';
 import { DiagnosticHub } from './components/DiagnosticHub';
@@ -24,25 +19,18 @@ import { EarlyDetectionCard } from './components/EarlyDetectionCard';
 import { TreatmentDosageCard } from './components/TreatmentDosageCard';
 import { HistoryLog } from './components/HistoryLog';
 import { WeatherSoilCard } from './components/WeatherSoilCard';
-import { AgriStoreCatalog } from './components/AgriStoreCatalog';
 import { IoTSensorsTab } from './components/IoTSensorsTab';
 import { PrescriptionModal } from './components/PrescriptionModal';
-import { CartDrawer } from './components/CartDrawer';
-import { CheckoutModal } from './components/CheckoutModal';
-import { OrderConfirmationModal } from './components/OrderConfirmationModal';
 import { ProfileFarmSettings } from './components/ProfileFarmSettings';
 import { weatherAPI } from './services/api';
 
 export const App: React.FC = () => {
-  // Page Routing State: Page 1 (Auth View) vs Page 2 (Main Dashboard)
-  const [currentPage, setCurrentPage] = useState<'auth' | 'dashboard'>('auth');
-  
-  // Dashboard Tab Navigation State (5 Tabs: diagnosis, history, weather, iot, store)
+  // Dashboard tab navigation state
   const [activeTab, setActiveTab] = useState<DashboardTab>('diagnosis');
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
   // Global App States
-  const [language, setLanguage] = useState<Language>('en');
+  const { language, setLanguage } = useLanguage();
   const [user, setUser] = useState<UserProfile>({
     id: '',
     name: 'Farmer Partner',
@@ -54,7 +42,6 @@ export const App: React.FC = () => {
     primaryCrop: 'Citrus (Orange / Lemon)',
     state: '',
     district: '',
-    isLoggedIn: false,
   });
   const [weather, setWeather] = useState<WeatherInfo>(sampleWeatherStations['Nagpur (Citrus Belt)']);
   const [isWeatherLoading, setIsWeatherLoading] = useState<boolean>(false);
@@ -69,13 +56,6 @@ export const App: React.FC = () => {
   // History & Feedback States
   const [history, setHistory] = useState<HistoryRecord[]>(initialHistoryRecords);
 
-  // E-Commerce & Cart
-  const [cart, setCart] = useState<CartItem[]>([
-    { product: ecommerceProducts[0], quantity: 1 },
-    { product: ecommerceProducts[1], quantity: 1 }
-  ]);
-  const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
-  const [storeFilterIds, setStoreFilterIds] = useState<string[] | undefined>(undefined);
   const [hardwareState, setHardwareState] = useState<HardwareState>({
     isConnected: false,
     deviceId: null,
@@ -83,50 +63,10 @@ export const App: React.FC = () => {
     lastPing: null,
   });
 
-  // Orders State
-  const [orders, setOrders] = useState<Order[]>([
-    {
-      id: 'ord-initial-1',
-      orderNumber: '#AG-74291',
-      date: '2026-08-21, 10:15 AM',
-      items: [
-        { product: ecommerceProducts[0], quantity: 2 },
-        { product: ecommerceProducts[6], quantity: 1 }
-      ],
-      subtotal: 989,
-      discount: 99,
-      total: 890,
-      paymentMethod: 'COD',
-      paymentDetails: 'Cash on Delivery at Farm Doorstep',
-      shippingAddress: {
-        fullName: 'Rajesh Kumar',
-        phone: '+91 98765 43210',
-        villageTaluka: 'Orchard Sector 4, Saoner Road',
-        district: 'Nagpur',
-        state: 'Maharashtra',
-        pincode: '440001',
-      },
-      status: 'Delivered',
-      estimatedDelivery: 'Delivered on 22 Aug 2026',
-      trackingSteps: [
-        { title: 'Order Placed & Confirmed', desc: 'Order received', time: '21 Aug, 10:15 AM', completed: true, current: false },
-        { title: 'Packed & Quality Certified', desc: 'Packed at Nagpur Central Agro Depot', time: '21 Aug, 02:00 PM', completed: true, current: false },
-        { title: 'In Transit with Kisan Express', desc: 'Out on delivery route', time: '22 Aug, 09:00 AM', completed: true, current: false },
-        { title: 'Delivered to Farm Doorstep', desc: 'Handed over to Rajesh Kumar', time: '22 Aug, 03:45 PM', completed: true, current: true },
-      ]
-    }
-  ]);
-
-  // Checkout & Order Confirmation States
-  const [isCheckoutOpen, setIsCheckoutOpen] = useState<boolean>(false);
-  const [activeConfirmedOrder, setActiveConfirmedOrder] = useState<Order | null>(null);
-  const [isOrderConfirmationOpen, setIsOrderConfirmationOpen] = useState<boolean>(false);
-
-  // Modals & TTS
+  // Modals
   const [isPrescriptionOpen, setIsPrescriptionOpen] = useState<boolean>(false);
-  const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
 
-  const t = translations[language];
+  const { t } = useLanguage();
 
   // Trigger high-accuracy live GPS tracking
   const requestLiveGpsLocation = (isManualRetry = false) => {
@@ -154,47 +94,6 @@ export const App: React.FC = () => {
     }
   };
 
-  // Auto-track location & fetch live weather on Dashboard Mount
-  useEffect(() => {
-    if (currentPage === 'dashboard') {
-      requestLiveGpsLocation();
-    }
-  }, [currentPage]);
-
-  // Auth Handlers: Prompt for GPS location permission immediately after sign in
-  const handleLoginSuccess = (profile: UserProfile) => {
-    setUser(profile);
-    setAcreage(profile.farmSize || 4.5);
-    if (profile.language) {
-      setLanguage(profile.language);
-    }
-    setCurrentPage('dashboard');
-    setActiveTab('diagnosis');
-    setIsAnalyzed(false);
-    requestLiveGpsLocation();
-  };
-
-  const handleLogout = () => {
-    setUser({
-      id: '',
-      name: 'Farmer Partner',
-      username: '',
-      phone: '',
-      language: language,
-      farmSize: 2.5,
-      farmUnit: 'Acres',
-      primaryCrop: 'Citrus (Orange / Lemon)',
-      state: '',
-      district: '',
-      isLoggedIn: false
-    });
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
-    }
-    setCurrentPage('auth');
-  };
-
   const handleProfileSave = (profile: UserProfile) => {
     setUser(profile);
     setAcreage(profile.farmSize || 4.5);
@@ -215,10 +114,6 @@ export const App: React.FC = () => {
   const handleLanguageChange = (newLang: Language) => {
     setLanguage(newLang);
     setUser((prev) => ({ ...prev, language: newLang }));
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
-    }
   };
 
   const fetchLiveWeatherByCoords = async (lat: number, lon: number) => {
@@ -261,24 +156,22 @@ export const App: React.FC = () => {
   };
 
   useEffect(() => {
-    if (activeTab === 'weather' || currentPage === 'dashboard') {
-      if ('geolocation' in navigator) {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            const { latitude: lat, longitude: lon } = pos.coords;
-            fetchLiveWeatherByCoords(lat, lon);
-          },
-          (err) => {
-            console.warn("GPS location permission denied or error, fallback to default city:", err);
-            fetchLiveWeatherByCity(weather.city || 'Nagpur');
-          },
-          { enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 }
-        );
-      } else {
-        fetchLiveWeatherByCity(weather.city || 'Nagpur');
-      }
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude: lat, longitude: lon } = pos.coords;
+          fetchLiveWeatherByCoords(lat, lon);
+        },
+        (err) => {
+          console.warn("GPS location permission denied or error, fallback to default city:", err);
+          fetchLiveWeatherByCity(weather.city || 'Nagpur');
+        },
+        { enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 }
+      );
+    } else {
+      fetchLiveWeatherByCity(weather.city || 'Nagpur');
     }
-  }, [activeTab, currentPage]);
+  }, [activeTab]);
 
   const handleLocationSelect = (stationName: string) => {
     const cleanCity = stationName.split('(')[0].trim();
@@ -349,111 +242,14 @@ export const App: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Cart operations
-  const handleAddToCart = (product: EcomProduct) => {
-    setCart((prev) => {
-      const existing = prev.find((item) => item.product.id === product.id);
-      if (existing) {
-        return prev.map((item) =>
-          item.product.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
-      }
-      return [...prev, { product, quantity: 1 }];
-    });
-  };
-
-  const handleInstantBuy = (product: EcomProduct) => {
-    handleAddToCart(product);
-    setIsCartOpen(true);
-  };
-
-  const handleUpdateQuantity = (productId: string, delta: number) => {
-    setCart((prev) =>
-      prev
-        .map((item) => {
-          if (item.product.id === productId) {
-            const newQty = item.quantity + delta;
-            return newQty > 0 ? { ...item, quantity: newQty } : null;
-          }
-          return item;
-        })
-        .filter(Boolean) as CartItem[]
-    );
-  };
-
-  const handleRemoveItem = (productId: string) => {
-    setCart((prev) => prev.filter((item) => item.product.id !== productId));
-  };
-
-  // Order Placement Handler (from Checkout Modal)
-  const handleOrderComplete = (newOrder: Order) => {
-    setOrders((prev) => [newOrder, ...prev]);
-    setCart([]); // Clear cart
-    setIsCheckoutOpen(false);
-    setActiveConfirmedOrder(newOrder);
-    setIsOrderConfirmationOpen(true);
-  };
-
-  // Text-To-Speech (TTS) Narration
-  const handleToggleSpeech = () => {
-    if (isSpeaking) {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-      }
-      setIsSpeaking(false);
-      return;
-    }
-
-    if (!('speechSynthesis' in window)) {
-      alert('Text-to-speech is not supported on this browser.');
-      return;
-    }
-
-    const textToSpeak = `
-      ${activeDiagnosis.diseaseName[language]}. 
-      ${activeDiagnosis.earlyWarningAlert[language]}. 
-      ${t.dosageForField} ${acreage} ${t.acresUnit}. 
-      ${activeDiagnosis.organicProtocol.overview[language]}.
-    `;
-
-    const utterance = new SpeechSynthesisUtterance(textToSpeak);
-    utterance.lang = language === 'hi' ? 'hi-IN' : language === 'ta' ? 'ta-IN' : 'en-US';
-    utterance.rate = 0.95;
-
-    utterance.onend = () => {
-      setIsSpeaking(false);
-    };
-
-    setIsSpeaking(true);
-    window.speechSynthesis.speak(utterance);
-  };
-
   const unreadAlertsCount = 0;
-  const totalCartItemsCount = cart.reduce((acc, i) => acc + i.quantity, 0);
 
   const handleTabChange = (tab: DashboardTab) => {
     setActiveTab(tab);
     setIsMobileNavOpen(false);
   };
 
-  // ==========================================
-  // VIEW 1: Standalone Authentication Page
-  // ==========================================
-  if (currentPage === 'auth') {
-    return (
-      <AuthPage
-        language={language}
-        onLanguageChange={handleLanguageChange}
-        onLoginSuccess={handleLoginSuccess}
-      />
-    );
-  }
-
-  // ==========================================
-  // VIEW 2: Main Farmer Dashboard with isolated tab views
-  // ==========================================
+  // Main Farmer Dashboard with isolated tab views
   return (
     <div className="relative min-h-screen max-w-[100vw] overflow-x-hidden font-sans bg-earth-50 text-slate-800 antialiased pb-16 sm:pb-0">
       
@@ -474,12 +270,7 @@ export const App: React.FC = () => {
           language={language}
           onLanguageChange={handleLanguageChange}
           user={user}
-          onLogout={handleLogout}
           weather={weather}
-          cart={cart}
-          onOpenCart={() => setIsCartOpen(true)}
-          isSpeaking={isSpeaking}
-          onToggleSpeech={handleToggleSpeech}
           unreadNotifications={unreadAlertsCount}
           isMobileNavOpen={isMobileNavOpen}
           onToggleMobileNav={() => setIsMobileNavOpen((prev) => !prev)}
@@ -494,7 +285,6 @@ export const App: React.FC = () => {
           activeTab={activeTab}
           onTabChange={handleTabChange}
           unreadSmsCount={unreadAlertsCount}
-          cartItemsCount={totalCartItemsCount}
           isMobileOpen={isMobileNavOpen}
           onCloseMobileNav={() => setIsMobileNavOpen(false)}
         />
@@ -524,7 +314,7 @@ export const App: React.FC = () => {
                 <div className="bg-white/90 backdrop-blur-md rounded-3xl p-5 sm:p-7 shadow-lg border border-agri-200/80 text-center animate-fade-in">
                   <div className="w-12 h-12 mx-auto rounded-2xl bg-agri-100 flex items-center justify-center text-2xl">📷</div>
                   <p className="mt-3 text-sm sm:text-base font-bold leading-relaxed text-slate-700">
-                    No Crop Scan Active: Upload a leaf photo, describe symptoms via voice, or select a sample crop above and click &apos;Analyze Crop with AgriGuard AI&apos; to generate diagnostic findings and dosage recommendations.
+                    {t.noCropScan}
                   </p>
                 </div>
               )}
@@ -545,11 +335,6 @@ export const App: React.FC = () => {
                     diagnosis={activeDiagnosis}
                     language={language}
                     acreage={acreage}
-                    onNavigateToStore={() => {
-                      setStoreFilterIds(activeDiagnosis.recommendedProductIds);
-                      setActiveTab('store');
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
                   />
                 </>
               )}
@@ -602,30 +387,7 @@ export const App: React.FC = () => {
                 setActiveTab('diagnosis');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              onNavigateToStore={() => {
-                setActiveTab('store');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
             />
-          )}
-
-          {/* ========================================================= */}
-          {/* TAB 5: AGRI-STORE (FULL SUPPLIES CATALOG & ORDERS)        */}
-          {/* ========================================================= */}
-          {activeTab === 'store' && (
-            <div className="animate-fade-in">
-              <AgriStoreCatalog
-                language={language}
-                onAddToCart={handleAddToCart}
-                onInstantBuy={handleInstantBuy}
-                recommendedProductIds={storeFilterIds}
-                orders={orders}
-                onViewOrderDetails={(ord) => {
-                  setActiveConfirmedOrder(ord);
-                  setIsOrderConfirmationOpen(true);
-                }}
-              />
-            </div>
           )}
 
           {activeTab === 'profile' && (
@@ -639,15 +401,15 @@ export const App: React.FC = () => {
           <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="flex items-center gap-2 font-bold text-white">
               <Sprout className="w-4 h-4 text-citrus-400" />
-              <span>AgriGuard AI — Agricultural Health, IoT & Early Warning System</span>
+              <span>{t.dashboardFooter}</span>
             </div>
             <p className="text-white/70">
-              Farmer Support in English • हिंदी • தமிழ்
+              {t.footerSupport}
             </p>
             <div className="flex items-center gap-3 text-citrus-300 font-semibold">
-              <span>CIB-RC Approved Formulations</span>
+              <span>{t.footerApproved}</span>
               <span>•</span>
-              <span>ESP32 Hardware Node Mesh</span>
+              <span>{t.footerHardware}</span>
             </div>
           </div>
         </footer>
@@ -662,44 +424,6 @@ export const App: React.FC = () => {
         user={user}
         acreage={acreage}
         language={language}
-      />
-
-      {/* Shopping Cart Drawer */}
-      <CartDrawer
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
-        items={cart}
-        onUpdateQuantity={handleUpdateQuantity}
-        onRemoveItem={handleRemoveItem}
-        onProceedToCheckout={() => setIsCheckoutOpen(true)}
-        user={user}
-        language={language}
-      />
-
-      {/* Multi-Step Checkout Modal */}
-      <CheckoutModal
-        isOpen={isCheckoutOpen}
-        onClose={() => setIsCheckoutOpen(false)}
-        items={cart}
-        user={user}
-        language={language}
-        onOrderComplete={handleOrderComplete}
-      />
-
-      {/* Dedicated Order Confirmation Modal / Page */}
-      <OrderConfirmationModal
-        isOpen={isOrderConfirmationOpen}
-        onClose={() => setIsOrderConfirmationOpen(false)}
-        order={activeConfirmedOrder}
-        language={language}
-        onNavigateToStore={() => {
-          setActiveTab('store');
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
-        onNavigateToDiagnosis={() => {
-          setActiveTab('diagnosis');
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
       />
 
     </div>

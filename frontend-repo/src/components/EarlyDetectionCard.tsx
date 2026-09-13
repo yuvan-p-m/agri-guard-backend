@@ -12,7 +12,7 @@ import {
   Download
 } from 'lucide-react';
 import { Language, DiseaseDiagnosis } from '../types';
-import { translations } from '../data/translations';
+import { useAppTranslation } from '../i18n';
 
 interface EarlyDetectionCardProps {
   diagnosis: DiseaseDiagnosis;
@@ -25,7 +25,7 @@ export const EarlyDetectionCard: React.FC<EarlyDetectionCardProps> = ({
   language,
   onOpenPrescription,
 }) => {
-  const t = translations[language];
+  const { t } = useAppTranslation();
 
   return (
     <div className="bg-white/95 backdrop-blur-md rounded-3xl p-5 sm:p-7 shadow-xl border border-agri-200/80 animate-slide-up">

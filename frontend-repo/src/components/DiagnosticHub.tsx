@@ -13,7 +13,7 @@ import {
   FolderOpen
 } from 'lucide-react';
 import type { Language, DiseaseDiagnosis } from '../types';
-import { translations } from '../data/translations';
+import { useAppTranslation } from '../i18n';
 import { cropDiseases } from '../data/cropDiseases';
 
 interface DiagnosticHubProps {
@@ -48,7 +48,7 @@ export const DiagnosticHub: React.FC<DiagnosticHubProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
-  const t = translations[language];
+  const { t } = useAppTranslation();
 
   // Quick symptom chips
   const symptomTags = [

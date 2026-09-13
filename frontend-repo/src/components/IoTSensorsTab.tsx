@@ -16,27 +16,25 @@ import {
   Radio, 
   ShieldCheck,
   Flame,
-  ArrowRight
+  ArrowRight,
 } from 'lucide-react';
 import type { HardwareState, Language, IoTSensorData } from '../types';
-import { translations } from '../data/translations';
+import { useAppTranslation } from '../i18n';
 
 interface IoTSensorsTabProps {
   language: Language;
   onNavigateToDiagnosis?: () => void;
-  onNavigateToStore?: () => void;
   hardwareState: HardwareState;
   onPairHardware: () => void;
 }
 
 export const IoTSensorsTab: React.FC<IoTSensorsTabProps> = ({
-  language,
+  language: _language,
   onNavigateToDiagnosis,
-  onNavigateToStore,
   hardwareState,
   onPairHardware,
 }) => {
-  const t = translations[language];
+  const { t } = useAppTranslation();
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [lastRefreshedTime, setLastRefreshedTime] = useState<string>('Just now');
 
@@ -111,6 +109,12 @@ export const IoTSensorsTab: React.FC<IoTSensorsTabProps> = ({
     }, 800);
   };
 
+  const getLiveUpdatedText = () => {
+    if (!hardwareState.isConnected) return t.waitingHardware;
+    if (telemetry.lastUpdated.includes('just connected')) return t.liveStreamJustConnected;
+    return t.liveTelemetryStream;
+  };
+
   return (
     <div className="space-y-6 max-w-6xl mx-auto animate-fade-in">
       
@@ -124,7 +128,7 @@ export const IoTSensorsTab: React.FC<IoTSensorsTabProps> = ({
             <div className="flex flex-wrap items-center gap-2 mb-2">
               <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black border shadow-2xs ${hardwareState.isConnected ? 'bg-emerald-100 text-emerald-900 border-emerald-300' : 'bg-slate-100 text-slate-700 border-slate-300'}`}>
                 <span className={`w-2.5 h-2.5 rounded-full ${hardwareState.isConnected ? 'bg-emerald-500 animate-ping' : 'bg-slate-400'}`} />
-                <span>{hardwareState.isConnected ? `● Connected: ${hardwareState.deviceId}` : '● Status: Disconnected'}</span>
+                <span>{hardwareState.isConnected ? `● ${t.connected}: ${hardwareState.deviceId}` : `● ${t.disconnected}`}</span>
               </span>
               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold font-mono border border-slate-200">
                 <Wifi className="w-3.5 h-3.5 text-agri-700" />
@@ -136,7 +140,7 @@ export const IoTSensorsTab: React.FC<IoTSensorsTabProps> = ({
               {t.iotTitle}
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 mt-1 font-medium max-w-2xl leading-relaxed">
-              {hardwareState.isConnected ? t.iotSubtitle : 'No device connected. Pair your ESP32/Arduino prototype node to stream live telemetry.'}
+              {hardwareState.isConnected ? t.iotSubtitle : t.noDeviceTelemetry}
             </p>
           </div>
 
@@ -145,7 +149,7 @@ export const IoTSensorsTab: React.FC<IoTSensorsTabProps> = ({
             
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700">
               <BatteryCharging className="w-4 h-4 text-emerald-600" />
-              <span>{telemetry.batteryLevel}% Solar</span>
+              <span>{telemetry.batteryLevel}% {t.solarPower}</span>
             </div>
 
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-mono font-bold text-slate-700">
@@ -160,7 +164,7 @@ export const IoTSensorsTab: React.FC<IoTSensorsTabProps> = ({
                 className="px-4 py-2 rounded-2xl bg-agri-700 hover:bg-agri-800 text-white text-xs font-black shadow-md shadow-agri-700/25 transition-all flex items-center gap-1.5"
               >
                 <Wifi className="w-3.5 h-3.5" />
-                <span>Pair Hardware Node</span>
+                <span>{t.pairHardwareNode}</span>
               </button>
             )}
 
@@ -171,7 +175,7 @@ export const IoTSensorsTab: React.FC<IoTSensorsTabProps> = ({
               className="px-4 py-2 rounded-2xl bg-agri-700 hover:bg-agri-800 text-white text-xs font-black shadow-md shadow-agri-700/25 transition-all flex items-center gap-1.5 active:scale-95 disabled:opacity-75"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
-              <span>{isRefreshing ? 'Reading Sensors...' : t.iotRefreshBtn}</span>
+              <span>{isRefreshing ? t.readingSensors : t.iotRefreshBtn}</span>
             </button>
 
           </div>
@@ -182,15 +186,15 @@ export const IoTSensorsTab: React.FC<IoTSensorsTabProps> = ({
         <div className="mt-5 pt-3.5 border-t border-slate-100 flex flex-wrap items-center justify-between text-xs text-slate-500 gap-2">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="font-semibold text-slate-700">{telemetry.lastUpdated}</span>
-            <span className="text-slate-400">• Last Sync: {lastRefreshedTime}</span>
+            <span className="font-semibold text-slate-700">{getLiveUpdatedText()}</span>
+            <span className="text-slate-400">• {t.lastSync}: {lastRefreshedTime === 'Just now' ? t.justNow : lastRefreshedTime}</span>
           </div>
-            <span className="font-mono text-[11px] text-agri-800 bg-agri-50 px-2 py-0.5 rounded-md border border-agri-200 font-bold">
-            {hardwareState.isConnected ? `MAC ID: ${hardwareState.deviceId}` : 'Hardware ID: Not paired'}
+          <span className="font-mono text-[11px] text-agri-800 bg-agri-50 px-2 py-0.5 rounded-md border border-agri-200 font-bold">
+            {hardwareState.isConnected ? `MAC ID: ${hardwareState.deviceId}` : `${t.hardwareId}: ${t.notPaired}`}
           </span>
-            {hardwareState.isConnected && hardwareState.lastPing && (
-              <span className="text-[11px] font-semibold text-emerald-700">Last active: {hardwareState.lastPing}</span>
-            )}
+          {hardwareState.isConnected && hardwareState.lastPing && (
+            <span className="text-[11px] font-semibold text-emerald-700">{t.lastActive}: {hardwareState.lastPing}</span>
+          )}
         </div>
 
       </div>
@@ -212,7 +216,7 @@ export const IoTSensorsTab: React.FC<IoTSensorsTabProps> = ({
                   <h3 className="text-xs font-black uppercase tracking-wider text-slate-700">
                     {t.iotTempHumSensor}
                   </h3>
-                  <p className="text-[11px] text-slate-400 font-medium">Digital Probe Sensor</p>
+                  <p className="text-[11px] text-slate-400 font-medium">{t.digitalProbeSensor}</p>
                 </div>
               </div>
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
@@ -226,7 +230,7 @@ export const IoTSensorsTab: React.FC<IoTSensorsTabProps> = ({
                 <span className="text-2xl font-black text-slate-900 mt-1 block font-mono">
                   {telemetry.ambientTempC}°C
                 </span>
-                <span className="text-[10px] text-emerald-700 font-bold mt-0.5 block">Normal Field Range</span>
+                <span className="text-[10px] text-emerald-700 font-bold mt-0.5 block">{t.normalFieldRange}</span>
               </div>
 
               <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/80">
@@ -234,7 +238,7 @@ export const IoTSensorsTab: React.FC<IoTSensorsTabProps> = ({
                 <span className="text-2xl font-black text-slate-900 mt-1 block font-mono">
                   {telemetry.soilTempC}°C
                 </span>
-                <span className="text-[10px] text-slate-500 font-medium mt-0.5 block">Root Zone Temp</span>
+                <span className="text-[10px] text-slate-500 font-medium mt-0.5 block">{t.rootZoneTemp}</span>
               </div>
             </div>
 
@@ -248,7 +252,7 @@ export const IoTSensorsTab: React.FC<IoTSensorsTabProps> = ({
           </div>
 
           <p className="text-[11px] text-slate-500 font-medium pt-2 border-t border-slate-100">
-            Optimal chlorophyll synthesis active within 22°C - 32°C.
+            {t.tempHumAdvisory}
           </p>
         </div>
 
@@ -264,7 +268,7 @@ export const IoTSensorsTab: React.FC<IoTSensorsTabProps> = ({
                   <h3 className="text-xs font-black uppercase tracking-wider text-slate-700">
                     {t.iotSoilMoistureSensor}
                   </h3>
-                  <p className="text-[11px] text-slate-400 font-medium">Capacitive V2.0 Probe</p>
+                  <p className="text-[11px] text-slate-400 font-medium">{t.capacitiveProbe}</p>
                 </div>
               </div>
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-blue-100 text-blue-800 border border-blue-300">
@@ -279,7 +283,7 @@ export const IoTSensorsTab: React.FC<IoTSensorsTabProps> = ({
                   {telemetry.soilMoisturePct}%
                 </span>
                 <span className="text-xs font-bold text-blue-900 bg-white px-2 py-0.5 rounded-md border border-blue-200">
-                  Volumetric Water Content
+                  {t.volumetricWaterContent}
                 </span>
               </div>
 
@@ -292,20 +296,20 @@ export const IoTSensorsTab: React.FC<IoTSensorsTabProps> = ({
               </div>
 
               <div className="flex justify-between text-[10px] text-slate-500 font-bold mt-1.5">
-                <span>0% Dry</span>
-                <span>60% Optimal</span>
-                <span>100% Saturated</span>
+                <span>0% {t.dry}</span>
+                <span>60% {t.iotOptimal}</span>
+                <span>100% {t.saturated}</span>
               </div>
             </div>
 
             <div className="mt-3 p-2.5 bg-slate-50 rounded-2xl border border-slate-200 text-xs text-slate-700 flex items-center gap-2 font-medium">
               <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span>Root aeration status: Normal. No water stress detected.</span>
+              <span>{t.rootAerationNormal}</span>
             </div>
           </div>
 
           <p className="text-[11px] text-slate-500 font-medium pt-2 border-t border-slate-100">
-            Next recommended drip irrigation cycle: in 14 hours.
+            {t.nextIrrigationAdvisory}
           </p>
         </div>
 
@@ -321,7 +325,7 @@ export const IoTSensorsTab: React.FC<IoTSensorsTabProps> = ({
                   <h3 className="text-xs font-black uppercase tracking-wider text-slate-700">
                     {t.iotRainSensor}
                   </h3>
-                  <p className="text-[11px] text-slate-400 font-medium">Optical Tipping-Bucket</p>
+                  <p className="text-[11px] text-slate-400 font-medium">{t.opticalTippingBucket}</p>
                 </div>
               </div>
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-slate-100 text-slate-700 border border-slate-300">
@@ -331,19 +335,19 @@ export const IoTSensorsTab: React.FC<IoTSensorsTabProps> = ({
 
             <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 mt-4 space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-600">Rain Intensity:</span>
+                <span className="text-xs font-bold text-slate-600">{t.rainIntensity}:</span>
                 <span className="text-base font-black text-slate-900 font-mono">
                   {telemetry.rainIntensityMmHr} mm/hr
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-600">Surface Wetness:</span>
+                <span className="text-xs font-bold text-slate-600">{t.surfaceWetness}:</span>
                 <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-md">
-                  Dry Canopy
+                  {t.dryCanopy}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-600">Solar PAR Light:</span>
+                <span className="text-xs font-bold text-slate-600">{t.solarParLight}:</span>
                 <span className="text-xs font-black text-slate-900 font-mono">
                   {telemetry.solarRadiationWm2} W/m²
                 </span>
@@ -353,13 +357,13 @@ export const IoTSensorsTab: React.FC<IoTSensorsTabProps> = ({
             <div className="mt-3 p-2.5 bg-amber-50 rounded-2xl border border-amber-200 text-xs text-amber-950 flex items-start gap-2">
               <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
               <p className="text-[11px] font-medium leading-relaxed">
-                Clear sky condition. Safe for morning foliar spray application.
+                {t.clearSkyAdvisory}
               </p>
             </div>
           </div>
 
           <p className="text-[11px] text-slate-500 font-medium pt-2 border-t border-slate-100">
-            Hardware rain-trip triggers automatic SMS alerts within 30s.
+            {t.rainTripAlert}
           </p>
         </div>
 
@@ -378,13 +382,13 @@ export const IoTSensorsTab: React.FC<IoTSensorsTabProps> = ({
                 {t.iotNpkSensor}
               </h3>
               <p className="text-xs text-slate-500 font-medium">
-                Real-time Soil Macronutrient Electro-Chemical Telemetry (mg/kg dry soil)
+                {t.npkSensorSubtitle}
               </p>
             </div>
           </div>
 
           <span className="text-xs font-mono font-bold text-agri-900 bg-agri-50 px-3 py-1 rounded-xl border border-agri-200 self-start sm:self-auto">
-            RS485 Modbus Interface Active
+            {t.modbusActive}
           </span>
         </div>
 
@@ -408,7 +412,7 @@ export const IoTSensorsTab: React.FC<IoTSensorsTabProps> = ({
                 style={{ width: `${Math.min(100, (telemetry.npk.nitrogenMgKg / 200) * 100)}%` }}
               />
             </div>
-            <p className="text-[10px] text-slate-500 font-medium">Optimal vegetative leaf growth support.</p>
+            <p className="text-[10px] text-slate-500 font-medium">{t.nitrogenAdvisory}</p>
           </div>
 
           {/* Phosphorus (P) */}
@@ -416,7 +420,7 @@ export const IoTSensorsTab: React.FC<IoTSensorsTabProps> = ({
             <div className="flex items-center justify-between">
               <span className="text-xs font-black text-amber-950">{t.iotPhosphorus}</span>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-200 text-amber-900 border border-amber-300">
-                Low (Deficit)
+                {t.lowDeficit}
               </span>
             </div>
             <div className="text-2xl font-black text-amber-950 font-mono">
@@ -428,7 +432,7 @@ export const IoTSensorsTab: React.FC<IoTSensorsTabProps> = ({
                 style={{ width: `${Math.min(100, (telemetry.npk.phosphorusMgKg / 80) * 100)}%` }}
               />
             </div>
-            <p className="text-[10px] text-amber-900 font-bold">⚠️ Root development booster needed.</p>
+            <p className="text-[10px] text-amber-900 font-bold">{t.phosphorusAdvisory}</p>
           </div>
 
           {/* Potassium (K) */}
@@ -448,7 +452,7 @@ export const IoTSensorsTab: React.FC<IoTSensorsTabProps> = ({
                 style={{ width: `${Math.min(100, (telemetry.npk.potassiumMgKg / 300) * 100)}%` }}
               />
             </div>
-            <p className="text-[10px] text-slate-500 font-medium">Strong cellular wall & fruit size retention.</p>
+            <p className="text-[10px] text-slate-500 font-medium">{t.potassiumAdvisory}</p>
           </div>
 
         </div>
@@ -467,7 +471,7 @@ export const IoTSensorsTab: React.FC<IoTSensorsTabProps> = ({
           </div>
 
           <p className="text-xs sm:text-sm text-agri-100 leading-relaxed font-medium max-w-4xl">
-            {telemetry.aiAdvisory[language]}
+            {t.iotAiAdvisoryText}
           </p>
 
           <div className="flex flex-wrap items-center gap-3 pt-2">
@@ -477,20 +481,11 @@ export const IoTSensorsTab: React.FC<IoTSensorsTabProps> = ({
                 onClick={onNavigateToDiagnosis}
                 className="px-4 py-2.5 rounded-xl bg-citrus-500 hover:bg-citrus-400 text-slate-950 text-xs font-black shadow-md transition-all flex items-center gap-1.5 transform hover:scale-105"
               >
-                <span>Run Vision Scan for Fungal Spores</span>
+                <span>{t.runVisionScan}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             )}
 
-            {onNavigateToStore && (
-              <button
-                type="button"
-                onClick={onNavigateToStore}
-                className="px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/20 text-white text-xs font-bold transition-all flex items-center gap-1.5"
-              >
-                <span>Order Organic Phosphate Inputs 🛒</span>
-              </button>
-            )}
           </div>
 
         </div>

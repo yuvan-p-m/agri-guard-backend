@@ -1,6 +1,6 @@
 import { DiseaseDiagnosis } from '../types';
 
-export const cropDiseases: DiseaseDiagnosis[] = [
+const cropDiseasesData: DiseaseDiagnosis[] = [
   {
     id: 'citrus-canker',
     cropId: 'citrus',
@@ -550,3 +550,86 @@ export const cropDiseases: DiseaseDiagnosis[] = [
     sampleImage: '/images/auth-bg.png'
   }
 ];
+
+function withLocaleFallback<T extends Record<string, string>>(value: T): T {
+  return {
+    ...value,
+    te: value.te ?? value.en,
+    ml: value.ml ?? value.en,
+    kn: value.kn ?? value.en,
+    bn: value.bn ?? value.en,
+    mr: value.mr ?? value.en,
+    gu: value.gu ?? value.en,
+    pa: value.pa ?? value.en,
+    ur: value.ur ?? value.en,
+    or: value.or ?? value.en,
+    as: value.as ?? value.en,
+    ne: value.ne ?? value.en,
+    si: value.si ?? value.en,
+    ar: value.ar ?? value.en,
+    fr: value.fr ?? value.en,
+    es: value.es ?? value.en,
+    pt: value.pt ?? value.en,
+    de: value.de ?? value.en,
+    it: value.it ?? value.en,
+    ru: value.ru ?? value.en,
+    uk: value.uk ?? value.en,
+    tr: value.tr ?? value.en,
+    id: value.id ?? value.en,
+    ms: value.ms ?? value.en,
+    th: value.th ?? value.en,
+    vi: value.vi ?? value.en,
+    ko: value.ko ?? value.en,
+    ja: value.ja ?? value.en,
+  };
+}
+
+function withListLocaleFallback<T extends Record<string, string[]>>(value: T): T {
+  return {
+    ...value,
+    te: value.te ?? value.en,
+    ml: value.ml ?? value.en,
+    kn: value.kn ?? value.en,
+    bn: value.bn ?? value.en,
+    mr: value.mr ?? value.en,
+    gu: value.gu ?? value.en,
+    pa: value.pa ?? value.en,
+    ur: value.ur ?? value.en,
+    or: value.or ?? value.en,
+    as: value.as ?? value.en,
+    ne: value.ne ?? value.en,
+    si: value.si ?? value.en,
+    ar: value.ar ?? value.en,
+    fr: value.fr ?? value.en,
+    es: value.es ?? value.en,
+    pt: value.pt ?? value.en,
+    de: value.de ?? value.en,
+    it: value.it ?? value.en,
+    ru: value.ru ?? value.en,
+    uk: value.uk ?? value.en,
+    tr: value.tr ?? value.en,
+    id: value.id ?? value.en,
+    ms: value.ms ?? value.en,
+    th: value.th ?? value.en,
+    vi: value.vi ?? value.en,
+    ko: value.ko ?? value.en,
+    ja: value.ja ?? value.en,
+  };
+}
+
+export const cropDiseases: DiseaseDiagnosis[] = cropDiseasesData.map((diagnosis) => ({
+  ...diagnosis,
+  cropName: withLocaleFallback(diagnosis.cropName),
+  diseaseName: withLocaleFallback(diagnosis.diseaseName),
+  earlyWarningAlert: withLocaleFallback(diagnosis.earlyWarningAlert),
+  symptoms: withListLocaleFallback(diagnosis.symptoms),
+  preventativeTips: withListLocaleFallback(diagnosis.preventativeTips),
+  organicProtocol: {
+    ...diagnosis.organicProtocol,
+    overview: withLocaleFallback(diagnosis.organicProtocol.overview),
+  },
+  chemicalProtocol: {
+    ...diagnosis.chemicalProtocol,
+    overview: withLocaleFallback(diagnosis.chemicalProtocol.overview),
+  },
+}));

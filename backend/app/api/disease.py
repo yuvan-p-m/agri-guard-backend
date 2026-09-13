@@ -6,7 +6,7 @@ from db.firestore_db import create_disease_record, get_disease_records, save_pre
 from schemas.common import DiseaseResponse
 from core.security import get_current_user
 from core.logger import get_logger
-from services.model_service import DiseaseModelService
+from services.model_service import DiseaseModelService, ModelUnavailableError
 
 logger = get_logger(__name__)
 router = APIRouter(prefix="/disease", tags=["Disease Detection"])
@@ -127,6 +127,12 @@ async def predict_disease(
             "weather_snapshot": weather_data
         }
 
+    except ModelUnavailableError as e:
+        logger.error("Disease model unavailable: %s", e)
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=str(e)
+        )
     except Exception as e:
         logger.error(f"Prediction error: {str(e)}", exc_info=True)
         raise HTTPException(

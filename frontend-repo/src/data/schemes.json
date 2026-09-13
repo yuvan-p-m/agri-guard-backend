@@ -1,0 +1,137 @@
+[
+  {
+    "name": "PM-KISAN",
+    "full_name": "Pradhan Mantri Kisan Samman Nidhi",
+    "benefit": "₹6000/year direct cash transfer in 3 installments",
+    "eligible_crops": "all",
+    "state": "all",
+    "category": "income support",
+    "apply": "pmkisan.gov.in"
+  },
+  {
+    "name": "PMFBY",
+    "full_name": "Pradhan Mantri Fasal Bima Yojana",
+    "benefit": "Crop insurance at 2% premium for kharif, 1.5% for rabi crops",
+    "eligible_crops": "all",
+    "state": "all",
+    "category": "insurance",
+    "apply": "pmfby.gov.in"
+  },
+  {
+    "name": "Soil Health Card",
+    "full_name": "Soil Health Card Scheme",
+    "benefit": "Free soil testing + nutrient recommendation card every 2 years",
+    "eligible_crops": "all",
+    "state": "all",
+    "category": "soil health",
+    "apply": "soilhealth.dac.gov.in"
+  },
+  {
+    "name": "PKVY",
+    "full_name": "Paramparagat Krishi Vikas Yojana",
+    "benefit": "₹50,000/hectare over 3 years for organic farming",
+    "eligible_crops": "all",
+    "state": "all",
+    "category": "organic farming",
+    "apply": "pgsindia.net"
+  },
+  {
+    "name": "Kisan Credit Card",
+    "full_name": "Kisan Credit Card Scheme",
+    "benefit": "Short term crop loans up to ₹3 lakh at 4% interest rate",
+    "eligible_crops": "all",
+    "state": "all",
+    "category": "credit",
+    "apply": "nearest bank branch"
+  },
+  {
+    "name": "MIDH",
+    "full_name": "Mission for Integrated Development of Horticulture",
+    "benefit": "Subsidy up to 50% on horticulture infrastructure and planting material",
+    "eligible_crops": "fruits,vegetables,coconut,cashew,mango,banana,grapes,pomegranate",
+    "state": "all",
+    "category": "horticulture",
+    "apply": "nhb.gov.in"
+  },
+  {
+    "name": "NMSA",
+    "full_name": "National Mission for Sustainable Agriculture",
+    "benefit": "Support for drip irrigation, water conservation, climate adaptation",
+    "eligible_crops": "all",
+    "state": "all",
+    "category": "water and sustainability",
+    "apply": "nmsa.nic.in"
+  },
+  {
+    "name": "RKVY",
+    "full_name": "Rashtriya Krishi Vikas Yojana",
+    "benefit": "State-specific agriculture development grants and infrastructure support",
+    "eligible_crops": "all",
+    "state": "all",
+    "category": "infrastructure",
+    "apply": "rkvy.nic.in"
+  },
+  {
+    "name": "eNAM",
+    "full_name": "National Agriculture Market",
+    "benefit": "Online mandi platform — sell crops directly at best market price",
+    "eligible_crops": "all",
+    "state": "all",
+    "category": "market access",
+    "apply": "enam.gov.in"
+  },
+  {
+    "name": "SMAM",
+    "full_name": "Sub Mission on Agricultural Mechanization",
+    "benefit": "40-50% subsidy on tractors, harvesters and farm equipment",
+    "eligible_crops": "all",
+    "state": "all",
+    "category": "mechanization",
+    "apply": "agrimachinery.nic.in"
+  },
+  {
+    "name": "NFSM",
+    "full_name": "National Food Security Mission",
+    "benefit": "Free seeds, fertilizer subsidies and technical support",
+    "eligible_crops": "rice,wheat,pulses,maize,mungbean,lentil,chickpea",
+    "state": "all",
+    "category": "food security",
+    "apply": "nfsm.gov.in"
+  },
+  {
+    "name": "PMKSY",
+    "full_name": "Pradhan Mantri Krishi Sinchayee Yojana",
+    "benefit": "Subsidy on drip and sprinkler irrigation — har khet ko pani",
+    "eligible_crops": "all",
+    "state": "all",
+    "category": "irrigation",
+    "apply": "pmksy.gov.in"
+  },
+  {
+    "name": "Agri Infrastructure Fund",
+    "full_name": "Agriculture Infrastructure Fund",
+    "benefit": "₹1 lakh crore fund — loans at 3% interest subsidy for post-harvest storage",
+    "eligible_crops": "all",
+    "state": "all",
+    "category": "infrastructure",
+    "apply": "agriinfra.dac.gov.in"
+  },
+  {
+    "name": "ACABC",
+    "full_name": "Agri Clinics and Agri Business Centres",
+    "benefit": "Free agricultural extension services and expert advice for farmers",
+    "eligible_crops": "all",
+    "state": "all",
+    "category": "advisory",
+    "apply": "manage.gov.in"
+  },
+  {
+    "name": "PM Fasal Bima — Kisan Rath",
+    "full_name": "Kisan Rath Mobile App",
+    "benefit": "Connect directly with buyers, check mandi prices, transport crops",
+    "eligible_crops": "all",
+    "state": "all",
+    "category": "market access",
+    "apply": "kisanrath app on Play Store"
+  }
+]
