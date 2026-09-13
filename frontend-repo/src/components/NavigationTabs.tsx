@@ -1,20 +1,19 @@
 import React from 'react';
+import { useAppTranslation } from '../i18n';
 import { 
   Sprout, 
   History, 
   CloudRain, 
-  Store,
   Cpu,
   UserRound
 } from 'lucide-react';
 
-export type DashboardTab = 'diagnosis' | 'history' | 'weather' | 'iot' | 'store' | 'profile';
+export type DashboardTab = 'diagnosis' | 'history' | 'weather' | 'iot' | 'profile';
 
 interface NavigationTabsProps {
   activeTab: DashboardTab;
   onTabChange: (tab: DashboardTab) => void;
   unreadSmsCount: number;
-  cartItemsCount: number;
   isMobileOpen: boolean;
   onCloseMobileNav: () => void;
 }
@@ -23,40 +22,34 @@ export const NavigationTabs: React.FC<NavigationTabsProps> = ({
   activeTab,
   onTabChange,
   unreadSmsCount,
-  cartItemsCount,
   isMobileOpen,
   onCloseMobileNav,
 }) => {
+  const { t } = useAppTranslation();
   const tabs: { id: DashboardTab; label: string; icon: React.ReactNode; badge?: number }[] = [
     {
       id: 'diagnosis',
-      label: 'Crop Diagnosis',
+      label: t.tabDiagnosis,
       icon: <Sprout className="w-4 h-4 sm:w-5 sm:h-5 text-[#4ADE80]" />,
     },
     {
       id: 'history',
-      label: 'History & Feedback',
+      label: t.tabHistory,
       icon: <History className="w-4 h-4 sm:w-5 sm:h-5 text-[#A16207]" />,
     },
     {
       id: 'weather',
-      label: 'Weather Forecast',
+      label: t.tabWeatherSms,
       icon: <CloudRain className="w-4 h-4 sm:w-5 sm:h-5 text-[#0284C7]" />,
     },
     {
       id: 'iot',
-      label: 'IoT Live Sensors',
+      label: t.tabIotSensors,
       icon: <Cpu className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" />,
     },
     {
-      id: 'store',
-      label: 'Agri-Store (Supplies)',
-      icon: <Store className="w-4 h-4 sm:w-5 sm:h-5 text-[#991B1B]" />,
-      badge: cartItemsCount > 0 ? cartItemsCount : undefined,
-    },
-    {
       id: 'profile',
-      label: 'Profile',
+      label: t.farmerProfile,
       icon: <UserRound className="w-4 h-4 sm:w-5 sm:h-5 text-[#475569]" />,
     },
   ];
@@ -66,10 +59,10 @@ export const NavigationTabs: React.FC<NavigationTabsProps> = ({
       {/* Desktop: Fixed left navigation rail */}
       <aside className="hidden md:flex fixed left-0 top-[72px] bottom-0 z-[90] w-64 flex-col border-r border-white/30 bg-transparent px-4 py-6 shadow-2xl">
         <div className="mb-5 px-2">
-          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/70">Farm Command Center</p>
-          <p className="mt-1 text-sm font-extrabold text-white">Dashboard Navigation</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/70">{t.appName}</p>
+          <p className="mt-1 text-sm font-extrabold text-white">{t.dashboardNavigation}</p>
         </div>
-        <nav className="flex flex-col gap-2" aria-label="Dashboard Navigation">
+        <nav className="flex flex-col gap-2" aria-label={t.dashboardNavigation}>
             {tabs.map((tab) => {
               const isActive = activeTab === tab.id;
               return (
@@ -107,7 +100,7 @@ export const NavigationTabs: React.FC<NavigationTabsProps> = ({
       <div className={`md:hidden fixed inset-0 z-[120] transition-all duration-300 ${isMobileOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}>
         <button
           type="button"
-          aria-label="Close navigation drawer"
+          aria-label={t.close}
           className={`absolute inset-0 bg-slate-950/45 transition-opacity duration-300 ${isMobileOpen ? 'opacity-100' : 'opacity-0'}`}
           onClick={onCloseMobileNav}
         />
@@ -126,13 +119,13 @@ export const NavigationTabs: React.FC<NavigationTabsProps> = ({
               type="button"
               onClick={onCloseMobileNav}
               className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white font-black text-slate-700"
-              aria-label="Close menu"
+              aria-label={t.closeMenu}
             >
               ✕
             </button>
           </div>
 
-          <nav className="space-y-2" aria-label="Mobile Dashboard Navigation">
+          <nav className="space-y-2" aria-label={t.dashboardNavigation}>
             {tabs.map((tab) => {
               const isActive = activeTab === tab.id;
               return (

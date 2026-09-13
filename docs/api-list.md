@@ -2,54 +2,6 @@
 
 Base URL: `http://localhost:8000/api/v1`
 
-## Authentication
-
-### POST /auth/register
-Register a new farmer.
-
-**Request:**
-```json
-{
-  "phone": "+919876543210",
-  "password": "securepass123",
-  "name": "Raj Kumar",
-  "location_lat": 28.7041,
-  "location_lng": 77.1025,
-  "soil_type": "loamy"
-}
-```
-
-**Response:**
-```json
-{
-  "id": 1,
-  "phone": "+919876543210",
-  "name": "Raj Kumar",
-  "access_token": "eyJ0eXA..."
-}
-```
-
-### POST /auth/login
-Login farmer.
-
-**Request:**
-```json
-{
-  "phone": "+919876543210",
-  "password": "securepass123"
-}
-```
-
-**Response:**
-```json
-{
-  "access_token": "eyJ0eXA...",
-  "token_type": "bearer"
-}
-```
-
----
-
 ## Disease Detection
 
 ### POST /disease/predict

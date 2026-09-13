@@ -13,7 +13,7 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { Language, DiseaseDiagnosis, UserProfile } from '../types';
-import { translations } from '../data/translations';
+import { useAppTranslation } from '../i18n';
 
 interface PrescriptionModalProps {
   isOpen: boolean;
@@ -32,7 +32,7 @@ export const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
   acreage,
   language,
 }) => {
-  const t = translations[language];
+  const { t } = useAppTranslation();
 
   if (!isOpen) return null;
 
@@ -72,7 +72,7 @@ export const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-agri-700 hover:bg-agri-800 text-white text-xs font-bold transition-colors"
             >
               <Printer className="w-3.5 h-3.5" />
-              <span>Print / PDF</span>
+              <span>{t.printPdf}</span>
             </button>
             <button
               onClick={onClose}
@@ -129,7 +129,7 @@ export const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
               <div className="p-3.5 rounded-xl border border-emerald-200 bg-emerald-50/40">
                 <div className="text-xs font-bold text-emerald-900 flex items-center gap-1.5 mb-1.5">
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
-                  <span>Protocol A: Organic Bio-Treatment</span>
+                  <span>{t.organicProtocolLabel}</span>
                 </div>
                 {diagnosis.organicProtocol.remedies.map((rem) => {
                   const calc = rem.dosageFormula(acreage);
@@ -146,7 +146,7 @@ export const PrescriptionModal: React.FC<PrescriptionModalProps> = ({
               <div className="p-3.5 rounded-xl border border-blue-200 bg-blue-50/40">
                 <div className="text-xs font-bold text-blue-900 flex items-center gap-1.5 mb-1.5">
                   <CheckCircle2 className="w-3.5 h-3.5 text-blue-700" />
-                  <span>Protocol B: Targeted Chemical Remedial</span>
+                  <span>{t.chemicalProtocolLabel}</span>
                 </div>
                 {diagnosis.chemicalProtocol.remedies.map((rem) => {
                   const calc = rem.dosageFormula(acreage);

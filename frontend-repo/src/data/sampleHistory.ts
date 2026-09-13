@@ -1,46 +1,4 @@
-import { HistoryRecord, SmsAlert, WeatherInfo, UserProfile } from '../types';
-
-export const demoProfiles: UserProfile[] = [
-  {
-    id: 'demo-rajesh',
-    name: 'Rajesh Kumar',
-    username: 'rajesh_farmer',
-    phone: '+91 98765 43210',
-    language: 'en',
-    farmSize: 4.5,
-    farmUnit: 'Acres',
-    primaryCrop: 'Citrus (Orange / Sweet Lime)',
-    state: 'Maharashtra',
-    district: 'Nagpur (Citrus Belt)',
-    isLoggedIn: true,
-  },
-  {
-    id: 'demo-murugan',
-    name: 'Murugan S.',
-    username: 'murugan_paddy',
-    phone: '+91 94432 18902',
-    language: 'ta',
-    farmSize: 2.5,
-    farmUnit: 'Acres',
-    primaryCrop: 'Paddy / Tomato',
-    state: 'Tamil Nadu',
-    district: 'Coimbatore',
-    isLoggedIn: true,
-  },
-  {
-    id: 'demo-sunita',
-    name: 'Sunita Devi',
-    username: 'sunita_krishi',
-    phone: '+91 97654 32189',
-    language: 'hi',
-    farmSize: 1.8,
-    farmUnit: 'Acres',
-    primaryCrop: 'Chilli & Vegetables',
-    state: 'Uttar Pradesh',
-    district: 'Varanasi',
-    isLoggedIn: true,
-  }
-];
+import { HistoryRecord, SmsAlert, WeatherInfo } from '../types';
 
 export const sampleWeatherStations: Record<string, WeatherInfo> = {
   'Nagpur (Citrus Belt)': {
@@ -148,7 +106,7 @@ export const initialHistoryRecords: HistoryRecord[] = [
   }
 ];
 
-export const initialSmsAlerts: SmsAlert[] = [
+const initialSmsAlertsData: SmsAlert[] = [
   {
     id: 'sms-01',
     timestamp: 'Today, 07:30 AM',
@@ -211,3 +169,55 @@ export const initialSmsAlerts: SmsAlert[] = [
     isRead: true
   }
 ];
+
+export const initialSmsAlerts: SmsAlert[] = initialSmsAlertsData.map((alert) => ({
+  ...alert,
+  title: {
+    ...alert.title,
+    te: alert.title.te ?? alert.title.en,
+    ml: alert.title.ml ?? alert.title.en,
+    kn: alert.title.kn ?? alert.title.en,
+    bn: alert.title.bn ?? alert.title.en, mr: alert.title.mr ?? alert.title.en, gu: alert.title.gu ?? alert.title.en,
+    pa: alert.title.pa ?? alert.title.en, ur: alert.title.ur ?? alert.title.en, or: alert.title.or ?? alert.title.en,
+    as: alert.title.as ?? alert.title.en, ne: alert.title.ne ?? alert.title.en, si: alert.title.si ?? alert.title.en,
+    ar: alert.title.ar ?? alert.title.en, fr: alert.title.fr ?? alert.title.en, es: alert.title.es ?? alert.title.en,
+    pt: alert.title.pt ?? alert.title.en, de: alert.title.de ?? alert.title.en, it: alert.title.it ?? alert.title.en,
+    ru: alert.title.ru ?? alert.title.en, uk: alert.title.uk ?? alert.title.en, tr: alert.title.tr ?? alert.title.en,
+    id: alert.title.id ?? alert.title.en, ms: alert.title.ms ?? alert.title.en, th: alert.title.th ?? alert.title.en,
+    vi: alert.title.vi ?? alert.title.en, ko: alert.title.ko ?? alert.title.en, ja: alert.title.ja ?? alert.title.en,
+  },
+  message: {
+    ...alert.message,
+    te: alert.message.te ?? alert.message.en,
+    ml: alert.message.ml ?? alert.message.en,
+    kn: alert.message.kn ?? alert.message.en,
+    bn: alert.message.bn ?? alert.message.en, mr: alert.message.mr ?? alert.message.en, gu: alert.message.gu ?? alert.message.en,
+    pa: alert.message.pa ?? alert.message.en, ur: alert.message.ur ?? alert.message.en, or: alert.message.or ?? alert.message.en,
+    as: alert.message.as ?? alert.message.en, ne: alert.message.ne ?? alert.message.en, si: alert.message.si ?? alert.message.en,
+    ar: alert.message.ar ?? alert.message.en, fr: alert.message.fr ?? alert.message.en, es: alert.message.es ?? alert.message.en,
+    pt: alert.message.pt ?? alert.message.en, de: alert.message.de ?? alert.message.en, it: alert.message.it ?? alert.message.en,
+    ru: alert.message.ru ?? alert.message.en, uk: alert.message.uk ?? alert.message.en, tr: alert.message.tr ?? alert.message.en,
+    id: alert.message.id ?? alert.message.en, ms: alert.message.ms ?? alert.message.en, th: alert.message.th ?? alert.message.en,
+    vi: alert.message.vi ?? alert.message.en, ko: alert.message.ko ?? alert.message.en, ja: alert.message.ja ?? alert.message.en,
+  },
+  actionRequired: alert.actionRequired
+    ? {
+        ...alert.actionRequired,
+        te: alert.actionRequired.te ?? alert.actionRequired.en,
+        ml: alert.actionRequired.ml ?? alert.actionRequired.en,
+        kn: alert.actionRequired.kn ?? alert.actionRequired.en,
+        bn: alert.actionRequired.bn ?? alert.actionRequired.en, mr: alert.actionRequired.mr ?? alert.actionRequired.en,
+        gu: alert.actionRequired.gu ?? alert.actionRequired.en, pa: alert.actionRequired.pa ?? alert.actionRequired.en,
+        ur: alert.actionRequired.ur ?? alert.actionRequired.en, or: alert.actionRequired.or ?? alert.actionRequired.en,
+        as: alert.actionRequired.as ?? alert.actionRequired.en, ne: alert.actionRequired.ne ?? alert.actionRequired.en,
+        si: alert.actionRequired.si ?? alert.actionRequired.en, ar: alert.actionRequired.ar ?? alert.actionRequired.en,
+        fr: alert.actionRequired.fr ?? alert.actionRequired.en, es: alert.actionRequired.es ?? alert.actionRequired.en,
+        pt: alert.actionRequired.pt ?? alert.actionRequired.en, de: alert.actionRequired.de ?? alert.actionRequired.en,
+        it: alert.actionRequired.it ?? alert.actionRequired.en, ru: alert.actionRequired.ru ?? alert.actionRequired.en,
+        uk: alert.actionRequired.uk ?? alert.actionRequired.en, tr: alert.actionRequired.tr ?? alert.actionRequired.en,
+        id: alert.actionRequired.id ?? alert.actionRequired.en, ms: alert.actionRequired.ms ?? alert.actionRequired.en,
+        th: alert.actionRequired.th ?? alert.actionRequired.en, vi: alert.actionRequired.vi ?? alert.actionRequired.en,
+        ko: alert.actionRequired.ko ?? alert.actionRequired.en, ja: alert.actionRequired.ja ?? alert.actionRequired.en,
+      }
+    : undefined,
+}));

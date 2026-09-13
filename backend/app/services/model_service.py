@@ -13,6 +13,10 @@ from torchvision.models import resnet50
 
 logger = logging.getLogger(__name__)
 
+
+class ModelUnavailableError(RuntimeError):
+    """Raised when the local disease model is not ready for inference."""
+
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 MODEL_PATH = Path(os.getenv(
     "MODEL_PATH",
@@ -115,11 +119,9 @@ class DiseaseModelService:
             cls.load_model()
 
         if not cls.is_loaded or cls.model is None:
-            return {
-                "disease": "Citrus__Black_spot",
-                "confidence": 94.5,
-                "status": "fallback"
-            }
+            raise ModelUnavailableError(
+                "The local disease model is unavailable. Try again shortly."
+            )
 
         try:
             raw_img = Image.open(io.BytesIO(image_bytes))

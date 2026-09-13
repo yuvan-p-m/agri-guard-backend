@@ -16,8 +16,8 @@ from core.config import settings
 from core.firebase import init_firebase, is_firebase_initialized
 
 # Import API routes and services
-from api import auth, alerts, disease, crop, sensors, weather, risk, feedback, pesticides, history, marketplace
-from services.model_service import DiseaseModelService
+from api import alerts, disease, crop, sensors, weather, risk, feedback, pesticides, history, marketplace
+from services.model_service import DiseaseModelService, ModelUnavailableError
 from db.firestore_db import save_prediction_to_firestore
 
 load_dotenv()
@@ -41,8 +41,6 @@ app.add_middleware(
 
 # Register API routes across root, /api/v1, and /api prefixes
 api_routers = [
-    auth.router,
-    auth.root_router,
     alerts.router,
     disease.router,
     crop.router,
@@ -98,7 +96,6 @@ def root():
         "docs": "/docs",
         "firebase_active": is_firebase_initialized(),
         "endpoints": {
-            "auth": "/auth",
             "disease": "/disease",
             "crop": "/crop",
             "sensors": "/sensors",
@@ -144,9 +141,6 @@ async def startup():
 @app.post("/predict")
 @app.post("/api/v1/predict")
 @app.post("/api/predict")
-@app.post("/disease/predict")
-@app.post("/api/v1/disease/predict")
-@app.post("/api/disease/predict")
 async def predict_endpoint(
     request: Request,
     file: UploadFile = File(...),
@@ -221,6 +215,12 @@ async def predict_endpoint(
             "sensor_snapshot": sensor_data,
             "weather_snapshot": weather_data
         }
+    except ModelUnavailableError as e:
+        logger.error("Disease model unavailable: %s", e)
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=str(e)
+        )
     except Exception as e:
         logger.error(f"Prediction error in /predict: {str(e)}", exc_info=True)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Prediction failed: {str(e)}")

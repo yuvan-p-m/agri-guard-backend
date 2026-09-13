@@ -1,10 +1,136 @@
-export type Language = 'en' | 'hi' | 'ta';
+export type Language =
+  | 'en' | 'ta' | 'hi' | 'te' | 'ml' | 'kn'
+  | 'bn' | 'mr' | 'gu' | 'pa' | 'ur' | 'or' | 'as' | 'ne' | 'si'
+  | 'ar' | 'fr' | 'es' | 'pt' | 'de' | 'it' | 'ru' | 'uk' | 'tr'
+  | 'id' | 'ms' | 'th' | 'vi' | 'ko' | 'ja';
+
+export type LocalizedText = {
+  en: string;
+  [language: string]: string;
+};
+
+export type LocalizedTextList = {
+  en: string[];
+  [language: string]: string[];
+};
 
 export interface HardwareState {
   isConnected: boolean;
   deviceId: string | null;
   deviceName: string;
   lastPing: string | null;
+}
+
+export interface CropRecommendation {
+  crop: string;
+  crop_key?: string;
+  confidence?: number;
+  reason: string;
+  ideal_profile?: {
+    ideal_N?: number;
+    ideal_P?: number;
+    ideal_K?: number;
+    ideal_temp?: number;
+    ideal_humidity?: number;
+    ideal_ph?: number;
+    ideal_rainfall?: number;
+  };
+}
+
+export interface CropRecommendationResponse {
+  status: string;
+  detail?: string;
+  location: string;
+  model_type?: string;
+  dataset?: string;
+  accuracy?: string;
+  total_crops?: number;
+  input_features?: {
+    N?: number;
+    P?: number;
+    K?: number;
+    temperature?: number;
+    humidity?: number;
+    ph?: number;
+    rainfall?: number;
+  };
+  weather: {
+    temp: number;
+    feels_like?: number;
+    humidity: number;
+    rain_mm: number;
+    condition: string;
+    resolved_name?: string;
+  };
+  sensor_snapshot: {
+    ec?: number;
+    humidity?: number;
+    moisture?: number;
+    nitrogen?: number;
+    ph?: number;
+    phosphorous?: number;
+    potassium?: number;
+    pump?: boolean | number;
+    rain?: number | boolean;
+    temperature?: number;
+  };
+  recommendations: CropRecommendation[];
+}
+
+export interface MandiRecord {
+  state: string;
+  district: string;
+  market: string;
+  commodity: string;
+  min_price: string;
+  max_price: string;
+  modal_price: string;
+  arrival_date: string;
+}
+
+export interface MandiPricesResponse {
+  status: 'success' | 'error' | string;
+  source?: string;
+  state?: string;
+  crop?: string;
+  last_updated?: string;
+  message?: string;
+  records: MandiRecord[];
+}
+
+export interface WeeklyPriceRecord {
+  week: string;
+  price: number;
+}
+
+export interface PriceForecastResponse {
+  status: 'success' | 'error' | string;
+  crop?: string;
+  state?: string;
+  weekly_prices: WeeklyPriceRecord[];
+  forecast: number[];
+  trend: 'RISING' | 'FALLING' | 'STABLE' | string;
+  pct_change: number;
+  verdict_title?: string;
+  recommendation: string;
+  record_count: number;
+  message?: string;
+}
+
+export interface CropAlertResponse {
+  status: 'success' | 'error' | string;
+  crop: string;
+  alert_type: string;
+  message: string;
+  recommendation: string;
+}
+
+export interface ProgressionRisk {
+  risk: string;
+  progression_stage?: string;
+  vulnerability_window?: string;
+  message: string;
+  pathology_factors?: string[];
 }
 
 export interface UserProfile {
@@ -30,7 +156,6 @@ export interface UserProfile {
   district: string;
   villageTaluka?: string;
   pincode?: string;
-  isLoggedIn: boolean;
 }
 
 export interface WeatherInfo {
@@ -93,11 +218,7 @@ export interface IoTSensorData {
     potassiumMgKg: number;
     potassiumStatus: 'Low' | 'Sufficient' | 'Optimal';
   };
-  aiAdvisory: {
-    en: string;
-    hi: string;
-    ta: string;
-  };
+  aiAdvisory: LocalizedText;
 }
 
 export interface RemedyItem {
@@ -115,50 +236,28 @@ export interface RemedyItem {
 export interface DiseaseDiagnosis {
   id: string;
   cropId: string;
-  cropName: { en: string; hi: string; ta: string };
-  diseaseName: { en: string; hi: string; ta: string };
+  cropName: LocalizedText;
+  diseaseName: LocalizedText;
   scientificName: string;
   pathogenType: 'Fungus' | 'Bacterium' | 'Virus' | 'Pest' | 'Nutrient Deficiency';
   stage: 'Early Stage (Inception)' | 'Moderate Progression' | 'Severe Outbreak';
   confidence: number;
   incubationPeriod: string;
   spreadRiskRate: number; // e.g. 45% crop loss if untreated in 7 days
-  earlyWarningAlert: { en: string; hi: string; ta: string };
-  symptoms: { en: string[]; hi: string[]; ta: string[] };
+  earlyWarningAlert: LocalizedText;
+  symptoms: LocalizedTextList;
   visualFeatures: string[];
   organicProtocol: {
-    overview: { en: string; hi: string; ta: string };
+    overview: LocalizedText;
     remedies: RemedyItem[];
   };
   chemicalProtocol: {
-    overview: { en: string; hi: string; ta: string };
+    overview: LocalizedText;
     remedies: RemedyItem[];
   };
-  preventativeTips: { en: string[]; hi: string[]; ta: string[] };
+  preventativeTips: LocalizedTextList;
   recommendedProductIds: string[];
   sampleImage: string;
-}
-
-export interface EcomProduct {
-  id: string;
-  name: string;
-  category: 'Organic Bio-Fungicide' | 'Chemical Fungicide' | 'Pesticide' | 'Foliar Fertilizer' | 'Sprayer Equipment' | 'Soil Kit';
-  brand: string;
-  packSize: string;
-  price: number;
-  originalPrice: number;
-  rating: number;
-  reviewCount: number;
-  badge: 'Govt Certified' | 'Organic India' | 'Best Seller' | 'Next-Day Delivery';
-  inStock: boolean;
-  image: string;
-  description: { en: string; hi: string; ta: string };
-  vendor: string;
-}
-
-export interface CartItem {
-  product: EcomProduct;
-  quantity: number;
 }
 
 export interface HistoryRecord {
@@ -182,9 +281,9 @@ export interface SmsAlert {
   timestamp: string;
   type: 'weather' | 'pest_alert' | 'treatment_reminder' | 'soil_advisory';
   urgency: 'high' | 'medium' | 'normal';
-  title: { en: string; hi: string; ta: string };
-  message: { en: string; hi: string; ta: string };
-  actionRequired?: { en: string; hi: string; ta: string };
+  title: LocalizedText;
+  message: LocalizedText;
+  actionRequired?: LocalizedText;
   isRead: boolean;
 }
 
@@ -196,25 +295,3 @@ export interface TrackingStep {
   current: boolean;
 }
 
-export interface Order {
-  id: string;
-  orderNumber: string;
-  date: string;
-  items: CartItem[];
-  subtotal: number;
-  discount: number;
-  total: number;
-  paymentMethod: 'COD' | 'UPI' | 'KCC';
-  paymentDetails?: string;
-  shippingAddress: {
-    fullName: string;
-    phone: string;
-    villageTaluka: string;
-    district: string;
-    state: string;
-    pincode: string;
-  };
-  status: 'Confirmed' | 'Packed' | 'In Transit' | 'Delivered';
-  estimatedDelivery: string;
-  trackingSteps: TrackingStep[];
-}

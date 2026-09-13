@@ -1,68 +1,147 @@
-# SIH-Agri-Smart: AI-Powered Crop Disease Detection & Recommendation System
+# AgriGuard
 
-**Early Crop Disease Detection for Smart Agriculture**
+AI-powered crop disease detection, crop recommendation, IoT monitoring, weather intelligence, and farming alerts.
 
-## 🎯 Problem Statement
-Farmers struggle with early disease detection, leading to massive crop loss (30-40%). This platform uses AI + sensor data to detect diseases early and provide actionable recommendations.
+## Features
 
-## ✨ Key Features
+* **Plant Disease Detection** — ResNet50-based disease classification from leaf images
+* **Crop Recommendation** — Random Forest model using soil and environmental parameters
+* **IoT Monitoring** — ESP32 sensor data through Firebase Realtime Database
+* **Weather Intelligence** — Weather data and disease/risk-related alerts
+* **Market & Mandi Data** — Market prices and forecasting
+* **Pesticide Recommendations** — Disease-specific treatment and dosage guidance
+* **Risk Analysis** — Crop disease progression and environmental risk assessment
+* **Alerts** — Weather, sensor, and farming alerts including SMS notifications
+* **Disease History** — Store and review previous diagnoses
+* **Farmer Feedback** — Collect feedback related to recommendations and diagnoses
+* **Multilingual Web Interface** — Support for multiple languages
 
-1. **AI Disease Detection** - Upload leaf image + get instant disease diagnosis
-2. **Crop Recommendation** - Suggest best crop based on soil type, weather, location
-3. **Sensor Integration** - Real-time NPK, pH, moisture, temperature, humidity data
-4. **Weather-based Early Warnings** - Predict disease risk 3-7 days in advance
-5. **Smart Pesticide Dosage** - AI-recommended quantity based on crop/disease/area
-6. **SMS Alerts** - Location-based alerts in farmer's local language
-7. **Disease History** - Track past infections and recurring patterns
-8. **E-Commerce Integration** - Direct links to buy recommended pesticides/nutrients
-9. **Farmer Feedback Loop** - Farmers confirm effectiveness → model improves over time
+## Tech Stack
 
-## 🏗️ Tech Stack
+### Backend
 
-- **Backend**: FastAPI + SQLAlchemy + PostgreSQL
-- **Frontend**: React + Vite
-- **AI/ML**: PyTorch (disease detection), scikit-learn (crop recommendation)
-- **IoT**: MQTT (sensor gateway)
-- **APIs**: OpenWeather, Twilio SMS, E-commerce providers
-- **Deployment**: Docker + AWS/GCP
+* FastAPI
+* PyTorch / Torchvision
+* ResNet50
+* Scikit-learn
+* Firebase Firestore
+* Firebase Realtime Database
+* Google Gemini
+* OpenWeather
+* SMS service
 
-## 📁 Project Structure
+### Frontend
 
-```
+* React
+* TypeScript
+* Vite
+* Firebase
+* Axios
+* Tailwind CSS
+* Lucide React
+
+### IoT
+
+* ESP32
+* Firebase Realtime Database
+* Soil and environmental sensors
+
+## Project Structure
+
+```text
 sih-agri-smart/
-├── backend/          # FastAPI server + ML services
-├── frontend/         # React web app
-├── ai/              # Disease & crop models
-├── data/            # Datasets & samples
-├── docs/            # Architecture & API docs
-└── scripts/         # Setup & automation
+├── backend/          # FastAPI backend, APIs, ML services and integrations
+├── frontend-repo/    # AgriGuard React web application
+├── ai/               # Disease and crop models
+├── data/             # Datasets and sample data
+├── docs/             # Documentation
+└── scripts/          # Setup and automation scripts
 ```
 
-## 🚀 Quick Start
+## Backend Setup
 
-### Backend Setup
 ```bash
 cd backend
-python -m venv venv
-.\venv\Scripts\Activate.ps1  # Windows
+
+python3 -m venv venv
+source venv/bin/activate
+
 pip install -r requirements.txt
+
 uvicorn app.main:app --reload
 ```
 
-### Frontend Setup
+The backend health endpoint is:
+
+```text
+GET /health
+```
+
+## Frontend Setup
+
 ```bash
-cd frontend
+cd frontend-repo
+
 npm install
 npm run dev
 ```
 
-## 📖 Documentation
+For a production build:
 
-- [Architecture](docs/architecture.md)
-- [API Specification](docs/api-list.md)
+```bash
+npm run build
+```
 
-## 👥 Team
-SIH 26131 Submission
+## Disease Model
 
-## 📄 License
+The backend uses a locally stored ResNet50 model for plant disease classification.
+
+The model expects RGB images and uses ImageNet normalization with a `224 × 224` input size.
+
+The model checkpoint and label map are stored under:
+
+```text
+ai/disease_model/
+├── resnet50_plant_disease.pth
+└── label_map.json
+```
+
+If the disease model is unavailable, the API returns an appropriate service-unavailable response instead of producing a fabricated prediction.
+
+## Configuration
+
+Backend configuration is provided through environment variables.
+
+Do not commit:
+
+```text
+.env
+serviceAccountKey.json
+```
+
+Use environment-specific configuration for API keys, Firebase credentials, weather services, Gemini, SMS services, and other secrets.
+
+## Production
+
+The current application is designed as a **web application** consisting of:
+
+```text
+React/Vite frontend
+        │
+        ▼
+FastAPI backend
+        │
+        ├── ResNet50 disease model
+        ├── Crop recommendation model
+        ├── Firebase
+        ├── Weather services
+        ├── Market/mandi services
+        ├── Gemini
+        └── SMS/alert services
+```
+
+Android/Capacitor packaging is not part of the current deployment.
+
+## License
+
 MIT

@@ -31,15 +31,20 @@ wheels/
 *~
 .DS_Store
 
-# Environment
+# Environment and private local data
 .env
 .env.local
 .env.*.local
 serviceAccountKey.json
-*.json
-!package.json
-!tsconfig.json
-!capacitor.config.json
+**/serviceAccountKey.json
+backend/farmers_local.json
+backend/app/db/local_db.json
+*.local.json
+
+# Runtime output
+*.log
+**/logs/
+**/uploads/
 
 
 # Logs

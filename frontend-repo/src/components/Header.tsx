@@ -1,10 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Sprout, 
-  Volume2, 
-  VolumeX, 
-  ShoppingCart, 
-  LogOut, 
+  Server,
   CloudRain, 
   Sun, 
   Cloud, 
@@ -14,19 +11,16 @@ import {
   MapPin,
   Bell
 } from 'lucide-react';
-import type { Language, UserProfile, WeatherInfo, CartItem } from '../types';
-import { translations } from '../data/translations';
+import type { Language, UserProfile, WeatherInfo } from '../types';
+import { languageNames, supportedLanguages } from '../i18n';
+import { useAppTranslation } from '../i18n';
+import { ServerEndpointModal } from './ServerEndpointModal';
 
 interface HeaderProps {
   language: Language;
   onLanguageChange: (lang: Language) => void;
   user: UserProfile;
-  onLogout: () => void;
   weather: WeatherInfo;
-  cart: CartItem[];
-  onOpenCart: () => void;
-  isSpeaking: boolean;
-  onToggleSpeech: () => void;
   unreadNotifications: number;
   onOpenNotifications: () => void;
   isMobileNavOpen: boolean;
@@ -37,19 +31,14 @@ export const Header: React.FC<HeaderProps> = ({
   language,
   onLanguageChange,
   user,
-  onLogout,
   weather,
-  cart,
-  onOpenCart,
-  isSpeaking,
-  onToggleSpeech,
   unreadNotifications,
   onOpenNotifications,
   isMobileNavOpen,
   onToggleMobileNav,
 }) => {
-  const t = translations[language];
-  const totalCartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
+  const { t } = useAppTranslation();
+  const [isServerModalOpen, setIsServerModalOpen] = useState(false);
 
   const getWeatherIcon = (type: WeatherInfo['iconType']) => {
     switch (type) {
@@ -70,7 +59,7 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               type="button"
               onClick={onToggleMobileNav}
-              aria-label="Toggle navigation menu"
+              aria-label={t.toggleNavigation}
               className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white/85 text-slate-700 shadow-sm transition-all hover:bg-agri-50 hover:text-agri-800 md:hidden"
             >
               <span className="relative block h-4 w-5">
@@ -121,98 +110,45 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center gap-1.5 sm:gap-2.5">
             
             {/* Language Switcher */}
-            <div className="flex items-center bg-slate-100/90 p-1 rounded-xl border border-slate-200 shadow-inner">
+            <label className="flex items-center gap-1.5 bg-slate-100/90 p-1 rounded-xl border border-slate-200 shadow-inner" title={t.preferredLanguage}>
               <Languages className="w-3.5 h-3.5 text-slate-700 ml-1.5 mr-1 hidden sm:inline" />
-              <button
-                type="button"
-                onClick={() => onLanguageChange('en')}
-                className={`px-2 sm:px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
-                  language === 'en'
-                    ? 'bg-white text-agri-950 shadow-sm border border-slate-200'
-                    : 'text-slate-700 hover:text-slate-950'
-                }`}
-                title="Switch to English"
+              <span className="sr-only">{t.preferredLanguage}</span>
+              <select
+                value={language}
+                onChange={(event) => onLanguageChange(event.target.value as Language)}
+                aria-label={t.preferredLanguage}
+                className="max-w-[6.5rem] cursor-pointer bg-transparent px-1 py-1 text-xs font-bold text-slate-800 outline-none sm:max-w-none"
               >
-                EN
-              </button>
-              <button
-                type="button"
-                onClick={() => onLanguageChange('hi')}
-                className={`px-2 sm:px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
-                  language === 'hi'
-                    ? 'bg-white text-agri-950 shadow-sm border border-slate-200'
-                    : 'text-slate-700 hover:text-slate-950'
-                }`}
-                title="हिंदी में बदलें"
-              >
-                हिंदी
-              </button>
-              <button
-                type="button"
-                onClick={() => onLanguageChange('ta')}
-                className={`px-2 sm:px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
-                  language === 'ta'
-                    ? 'bg-white text-agri-950 shadow-sm border border-slate-200'
-                    : 'text-slate-700 hover:text-slate-950'
-                }`}
-                title="தமிழில் மாற்றுக"
-              >
-                தமிழ்
-              </button>
-            </div>
-
-            {/* Read Aloud (TTS) Accessibility Button */}
-            <button
-              type="button"
-              onClick={onToggleSpeech}
-              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
-                isSpeaking 
-                  ? 'bg-rose-50 text-rose-700 border-rose-300 animate-pulse shadow-sm' 
-                  : 'bg-agri-50 text-agri-800 border-agri-200 hover:bg-agri-100 hover:border-agri-300'
-              }`}
-              title={isSpeaking ? t.stopAudio : t.readAloud}
-            >
-              {isSpeaking ? (
-                <>
-                  <VolumeX className="w-4 h-4 text-rose-600 animate-bounce" />
-                  <span className="hidden md:inline">{t.stopAudio}</span>
-                </>
-              ) : (
-                <>
-                  <Volume2 className="w-4 h-4 text-agri-700" />
-                  <span className="hidden md:inline">{t.readAloud}</span>
-                </>
-              )}
-            </button>
+                {supportedLanguages.map((supportedLanguage) => (
+                  <option key={supportedLanguage} value={supportedLanguage}>
+                    {languageNames[supportedLanguage]}
+                  </option>
+                ))}
+              </select>
+            </label>
 
             {/* Agricultural Advisory Notifications */}
             <button
               type="button"
+              onClick={() => setIsServerModalOpen(true)}
+              className="p-2 rounded-xl text-slate-700 hover:text-agri-800 hover:bg-agri-50 border border-slate-200 transition-colors"
+              title={t.backendApiServer}
+              aria-label={t.backendApiServer}
+            >
+              <Server className="w-4 h-4 sm:w-5 sm:h-5 text-slate-800" />
+            </button>
+
+            <button
+              type="button"
               onClick={onOpenNotifications}
               className="relative p-2 rounded-xl text-slate-700 hover:text-agri-800 hover:bg-agri-50 border border-slate-200 transition-colors"
-              title="Open agricultural alerts"
-              aria-label="Open agricultural alerts"
+              title={t.openAlerts}
+              aria-label={t.openAlerts}
             >
               <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-slate-800" />
               {unreadNotifications > 0 && (
                 <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 text-white rounded-full text-[10px] font-black flex items-center justify-center">
                   {unreadNotifications}
-                </span>
-              )}
-            </button>
-
-            {/* Farm Supplies Cart */}
-            <button
-              type="button"
-              onClick={onOpenCart}
-              className="relative p-2 rounded-xl text-slate-700 hover:text-agri-800 hover:bg-agri-50 border border-slate-200 transition-colors"
-              title={t.cartTotal}
-              aria-label={t.cartTotal}
-            >
-              <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 text-slate-800" />
-              {totalCartCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-agri-600 text-white rounded-full text-[10px] font-black flex items-center justify-center">
-                  {totalCartCount}
                 </span>
               )}
             </button>
@@ -232,21 +168,14 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
             </div>
 
-            {/* Dedicated Logout Button */}
-            <button
-              type="button"
-              onClick={onLogout}
-              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-700 hover:text-rose-700 border border-slate-300 hover:border-rose-300 text-xs font-extrabold transition-all"
-              title={t.logout}
-            >
-              <LogOut className="w-3.5 h-3.5 text-rose-600" />
-              <span className="hidden sm:inline">{t.logout.split(' ')[0]}</span>
-            </button>
-
           </div>
 
         </div>
       </div>
+      <ServerEndpointModal
+        isOpen={isServerModalOpen}
+        onClose={() => setIsServerModalOpen(false)}
+      />
     </header>
   );
 };

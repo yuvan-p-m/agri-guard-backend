@@ -15,7 +15,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { Language, WeatherInfo } from '../types';
-import { translations } from '../data/translations';
+import { useAppTranslation } from '../i18n';
 
 interface WeatherSoilCardProps {
   weather: WeatherInfo;
@@ -34,7 +34,7 @@ export const WeatherSoilCard: React.FC<WeatherSoilCardProps> = ({
   onRefreshLocation,
   onManualCitySubmit,
 }) => {
-  const t = translations[language];
+  const { t } = useAppTranslation();
   const [manualInput, setManualInput] = useState('');
 
   const handleManualSubmit = (e: React.FormEvent) => {
@@ -59,11 +59,11 @@ export const WeatherSoilCard: React.FC<WeatherSoilCardProps> = ({
                 {t.weatherTitle}
               </h3>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
-                Live API
+                {t.liveApi}
               </span>
             </div>
             <p className="text-[11px] text-slate-500 font-medium">
-              Live GPS Field Telemetry & OpenWeatherMap Forecast
+              {t.liveGpsTelemetry}
             </p>
           </div>
         </div>
@@ -74,11 +74,11 @@ export const WeatherSoilCard: React.FC<WeatherSoilCardProps> = ({
             <button
               onClick={onRefreshLocation}
               disabled={isLoading}
-              title="Refresh Live GPS Location"
+              title={t.refresh}
               className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors disabled:opacity-50 flex items-center gap-1 text-xs font-bold"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin text-agri-600' : 'text-slate-600'}`} />
-              <span className="hidden sm:inline">Refresh</span>
+              <span className="hidden sm:inline">{t.refresh}</span>
             </button>
           )}
 
@@ -88,7 +88,7 @@ export const WeatherSoilCard: React.FC<WeatherSoilCardProps> = ({
               : 'bg-emerald-50 border-emerald-200 text-emerald-900'
           }`}>
             <MapPin className={`w-3.5 h-3.5 ${isGpsDenied ? 'text-amber-600' : 'text-emerald-600 animate-bounce'}`} />
-            <span>{isGpsDenied ? 'GPS Denied (Manual)' : '📍 Live GPS Active'}</span>
+            <span>{isGpsDenied ? t.gpsDeniedManual : t.liveGpsActive}</span>
           </div>
         </div>
       </div>
@@ -98,17 +98,17 @@ export const WeatherSoilCard: React.FC<WeatherSoilCardProps> = ({
         <form onSubmit={handleManualSubmit} className="mt-3 p-3 rounded-2xl bg-amber-50/80 border border-amber-200/80">
           <div className="flex items-center gap-1.5 text-xs font-bold text-amber-900 mb-2">
             <AlertCircle className="w-4 h-4 text-amber-600" />
-            <span>GPS Location Permission Denied / Unavailable</span>
+            <span>{t.gpsPermissionDenied}</span>
           </div>
           <p className="text-[11px] text-amber-800 mb-2">
-            Since GPS access was denied, enter your farm city name manually to fetch live OpenWeatherMap forecast:
+            {t.gpsManualInstructions}
           </p>
           <div className="flex gap-2">
             <input
               type="text"
               value={manualInput}
               onChange={(e) => setManualInput(e.target.value)}
-              placeholder="e.g. Nagpur, Nashik, Chennai, Ludhiana..."
+              placeholder={t.cityPlaceholder}
               className="flex-1 px-3 py-1.5 text-xs rounded-xl border border-amber-300 focus:border-agri-600 bg-white font-medium text-slate-900"
             />
             <button
@@ -116,7 +116,7 @@ export const WeatherSoilCard: React.FC<WeatherSoilCardProps> = ({
               className="px-3 py-1.5 rounded-xl bg-agri-700 hover:bg-agri-800 text-white font-bold text-xs flex items-center gap-1 shadow-sm transition-colors"
             >
               <Search className="w-3.5 h-3.5" />
-              <span>Search</span>
+              <span>{t.search}</span>
             </button>
           </div>
         </form>
@@ -125,7 +125,7 @@ export const WeatherSoilCard: React.FC<WeatherSoilCardProps> = ({
       {isLoading ? (
         <div className="py-12 text-center space-y-3">
           <div className="w-8 h-8 border-4 border-agri-600 border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-xs font-bold text-slate-600">Fetching live meteorological telemetry...</p>
+          <p className="text-xs font-bold text-slate-600">{t.fetchingWeather}</p>
         </div>
       ) : (
         <>
@@ -183,7 +183,7 @@ export const WeatherSoilCard: React.FC<WeatherSoilCardProps> = ({
             <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
               <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500">
                 <Wind className="w-3.5 h-3.5 text-slate-600" />
-                <span>Wind Speed</span>
+                <span>{t.windSpeed}</span>
               </div>
               <div className="text-base font-extrabold text-slate-900 mt-1">
                 {weather.windSpeedKmH} km/h
@@ -193,7 +193,7 @@ export const WeatherSoilCard: React.FC<WeatherSoilCardProps> = ({
             <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
               <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500">
                 <Activity className="w-3.5 h-3.5 text-agri-600" />
-                <span>Soil Moisture</span>
+                <span>{t.soilMoisture}</span>
               </div>
               <div className="text-xs font-extrabold text-agri-950 mt-1 truncate">
                 {weather.soilMoisture}
@@ -213,8 +213,8 @@ export const WeatherSoilCard: React.FC<WeatherSoilCardProps> = ({
           {weather.forecast && weather.forecast.length > 0 && (
             <div className="mt-4 pt-3 border-t border-slate-100">
               <h4 className="text-xs font-extrabold text-slate-900 mb-2 flex items-center justify-between">
-                <span>5-Day Disease Outbreak & Rainfall Forecast</span>
-                <span className="text-[10px] text-slate-600 font-normal">Updated Live</span>
+                <span>{t.fiveDayForecast}</span>
+                <span className="text-[10px] text-slate-600 font-normal">{t.updatedLive}</span>
               </h4>
               <div className="space-y-1.5">
                 {weather.forecast.map((item, idx) => (
@@ -224,7 +224,7 @@ export const WeatherSoilCard: React.FC<WeatherSoilCardProps> = ({
                       <span className="text-slate-600 font-medium">{item.temp_min}° - {item.temp_max}°C</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-slate-600 text-[11px]">{item.humidity}% Humidity</span>
+                      <span className="text-slate-600 text-[11px]">{item.humidity}% {t.humidityShort}</span>
                       <span className={`px-2 py-0.5 rounded-md text-[10px] font-black ${
                         item.disease_risk === 'High'
                           ? 'bg-rose-100 text-rose-800'

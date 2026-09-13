@@ -6,30 +6,27 @@ import {
   Calendar, 
   AlertOctagon, 
   Check, 
-  ShoppingCart, 
   HelpCircle,
   Clock,
   Shield,
   Layers
 } from 'lucide-react';
 import { Language, DiseaseDiagnosis, RemedyItem } from '../types';
-import { translations } from '../data/translations';
+import { useAppTranslation } from '../i18n';
 
 interface TreatmentDosageCardProps {
   diagnosis: DiseaseDiagnosis;
   language: Language;
   acreage: number;
-  onNavigateToStore: () => void;
 }
 
 export const TreatmentDosageCard: React.FC<TreatmentDosageCardProps> = ({
   diagnosis,
   language,
   acreage,
-  onNavigateToStore,
 }) => {
   const [activeProtocol, setActiveProtocol] = useState<'organic' | 'chemical'>('organic');
-  const t = translations[language];
+  const { t } = useAppTranslation();
 
   const currentProtocol = 
     activeProtocol === 'organic' 
@@ -63,7 +60,7 @@ export const TreatmentDosageCard: React.FC<TreatmentDosageCardProps> = ({
             }`}
           >
             <Leaf className="w-3.5 h-3.5" />
-            <span>Organic</span>
+            <span>{t.organic}</span>
           </button>
           <button
             type="button"
@@ -75,7 +72,7 @@ export const TreatmentDosageCard: React.FC<TreatmentDosageCardProps> = ({
             }`}
           >
             <FlaskConical className="w-3.5 h-3.5" />
-            <span>Chemical</span>
+            <span>{t.chemical}</span>
           </button>
         </div>
       </div>
@@ -145,7 +142,7 @@ export const TreatmentDosageCard: React.FC<TreatmentDosageCardProps> = ({
               <div className="mt-3 space-y-1.5 text-xs text-slate-700">
                 <p className="flex items-start gap-1.5">
                   <Droplet className="w-3.5 h-3.5 text-agri-600 shrink-0 mt-0.5" />
-                  <span><strong>Method:</strong> {remedy.instructions}</span>
+                  <span><strong>{t.method}:</strong> {remedy.instructions}</span>
                 </p>
                 <p className="flex items-start gap-1.5">
                   <Calendar className="w-3.5 h-3.5 text-agri-600 shrink-0 mt-0.5" />
@@ -166,22 +163,12 @@ export const TreatmentDosageCard: React.FC<TreatmentDosageCardProps> = ({
 
       {/* Preventative Agronomic Tips */}
       <div className="mt-5 pt-4 border-t border-slate-100">
-        <p className="text-xs font-bold text-slate-800 mb-2">
-          🛡️ Preventative Agronomic Practices:
-        </p>
+        <p className="text-xs font-bold text-slate-800 mb-2">{t.preventativePractices}</p>
         <ul className="space-y-1 text-xs text-slate-600 list-disc list-inside">
           {diagnosis.preventativeTips[language].map((tip, idx) => (
             <li key={idx} className="leading-relaxed">{tip}</li>
           ))}
         </ul>
-        <button
-          type="button"
-          onClick={onNavigateToStore}
-          className="mt-5 w-full sm:w-auto px-4 py-2.5 rounded-xl bg-agri-700 hover:bg-agri-800 text-white text-xs font-black shadow-sm transition-all inline-flex items-center justify-center gap-2"
-        >
-          <ShoppingCart className="w-4 h-4" />
-          <span>Order Recommended Remedies in Agri-Store →</span>
-        </button>
       </div>
 
     </div>

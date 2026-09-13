@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import type { Language, HistoryRecord } from '../types';
-import { translations } from '../data/translations';
+import { useAppTranslation } from '../i18n';
 
 interface HistoryLogProps {
   language: Language;
@@ -32,7 +32,7 @@ export const HistoryLog: React.FC<HistoryLogProps> = ({
   const [filterStatus, setFilterStatus] = useState<'all' | 'Resolved' | 'In Treatment'>('all');
   const [activeFeedbackId, setActiveFeedbackId] = useState<string | null>(null);
 
-  const t = translations[language];
+  const { t } = useAppTranslation();
 
   const handleFeedback = (e: React.MouseEvent, recordId: string, feedback: 'worked' | 'not_worked') => {
     e.stopPropagation(); // prevent card click
